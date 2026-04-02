@@ -81,13 +81,13 @@ variable "aurora_max_capacity" {
 # directly from Secrets Manager by Terraform (see config_secrets.tf).
 
 variable "custom_domain_name" {
-  description = "Optional custom API domain (example: api.plainplan.click)"
+  description = "Optional custom API domain (example: dev.api.plainplan.click)"
   type        = string
   default     = ""
 }
 
-variable "acm_certificate_arn" {
-  description = "Optional ACM certificate ARN for custom domain"
+variable "route53_zone_name" {
+  description = "Route53 hosted zone name (example: plainplan.click). When set with custom_domain_name, Terraform creates and validates the ACM certificate and DNS records automatically."
   type        = string
   default     = ""
 }

@@ -9,11 +9,8 @@ output "lambda_function_name" {
 }
 
 output "custom_domain_target" {
-  description = "DNS target to use for CNAME when custom domain is enabled"
-  value = local.custom_domain_enabled ? {
-    target_domain_name = aws_apigatewayv2_domain_name.custom[0].domain_name_configuration[0].target_domain_name
-    hosted_zone_id     = aws_apigatewayv2_domain_name.custom[0].domain_name_configuration[0].hosted_zone_id
-  } : null
+  description = "Custom domain URL when enabled"
+  value       = local.custom_domain_enabled ? "https://${var.custom_domain_name}" : null
 }
 
 output "aurora_cluster_arn" {

@@ -11,6 +11,6 @@ aurora_engine_version    = "16.4"
 aurora_min_capacity      = 0.5
 aurora_max_capacity      = 1
 
-# Optional custom domain setup
-custom_domain_name = "dev.api.plainplan.click"
-acm_certificate_arn = "arn:aws:acm:eu-west-1:123456789012:certificate/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+# Custom domain — Terraform creates ACM cert, validates via Route53, and points DNS automatically
+custom_domain_name  = "dev.api.plainplan.click"
+route53_zone_name   = "plainplan.click"
