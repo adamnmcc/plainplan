@@ -22,6 +22,38 @@ resource "aws_iam_role_policy_attachment" "lambda_logs" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+resource "aws_iam_role_policy" "lambda_rds_data" {
+  count = local.aurora_enabled ? 1 : 0
+  name  = "${local.name_prefix}-rds-data"
+  role  = aws_iam_role.lambda_exec.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "RDSDataAPI"
+        Effect = "Allow"
+        Action = [
+          "rds-data:ExecuteStatement",
+          "rds-data:BatchExecuteStatement",
+          "rds-data:BeginTransaction",
+          "rds-data:CommitTransaction",
+          "rds-data:RollbackTransaction"
+        ]
+        Resource = aws_rds_cluster.aurora[0].arn
+      },
+      {
+        Sid    = "AuroraSecretRead"
+        Effect = "Allow"
+        Action = [
+          "secretsmanager:GetSecretValue"
+        ]
+        Resource = aws_secretsmanager_secret.aurora_master[0].arn
+      }
+    ]
+  })
+}
+
 resource "aws_cloudwatch_log_group" "lambda" {
   name              = "/aws/lambda/${local.name_prefix}-api"
   retention_in_days = 7
