@@ -7,8 +7,8 @@ locals {
     RDS_CLUSTER_ARN   = local.aurora_enabled ? aws_rds_cluster.aurora[0].arn : ""
     RDS_SECRET_ARN    = local.aurora_enabled ? aws_secretsmanager_secret.aurora_master[0].arn : ""
     RDS_DATABASE_NAME = local.aurora_enabled ? var.aurora_database_name : ""
-    OPENROUTER_API_KEY  = var.openrouter_api_key
-    OPENROUTER_BASE_URL = var.openrouter_base_url
-    STATS_SECRET      = var.stats_secret
+    OPENROUTER_API_KEY  = local.secret_openrouter_api_key
+    OPENROUTER_BASE_URL = local.secret_openrouter_base_url
+    STATS_SECRET      = local.secret_stats_secret
   }
 }

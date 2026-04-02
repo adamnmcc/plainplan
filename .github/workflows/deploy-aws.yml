@@ -48,56 +48,27 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY || secrets.AWS_IAM_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Sync deploy env from AWS
+      - name: Write deploy config
         shell: bash
-        env:
-          FALLBACK_OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY || secrets.OPENAI_API_KEY }}
-          FALLBACK_OPENROUTER_BASE_URL: ${{ secrets.OPENROUTER_BASE_URL || secrets.OPENAI_BASE_URL }}
         run: |
-          chmod +x scripts/sync_env_from_aws.sh
-          scripts/sync_env_from_aws.sh \
-            --prefix "${{ vars.AWS_CONFIG_PREFIX || secrets.AWS_CONFIG_PREFIX || 'plainplan/dev' }}" \
-            --region "${{ secrets.AWS_REGION }}"
-
-          # shellcheck disable=SC1091
-          set -a
-          source .env
-
-          if [[ -z "${OPENROUTER_API_KEY:-}" && -n "${OPENAI_API_KEY:-}" ]]; then
-            OPENROUTER_API_KEY="$OPENAI_API_KEY"
-          fi
-
-          if [[ -z "${OPENROUTER_API_KEY:-}" && -n "${FALLBACK_OPENROUTER_API_KEY:-}" ]]; then
-            OPENROUTER_API_KEY="$FALLBACK_OPENROUTER_API_KEY"
-          fi
-
-          if [[ -z "${OPENROUTER_BASE_URL:-}" && -n "${OPENAI_BASE_URL:-}" ]]; then
-            OPENROUTER_BASE_URL="$OPENAI_BASE_URL"
-          fi
-
-          if [[ -z "${OPENROUTER_BASE_URL:-}" && -n "${FALLBACK_OPENROUTER_BASE_URL:-}" ]]; then
-            OPENROUTER_BASE_URL="$FALLBACK_OPENROUTER_BASE_URL"
-          fi
-
-          if [[ -z "${OPENROUTER_API_KEY:-}" ]]; then
-            echo "::warning::OPENROUTER_API_KEY is empty. Lambda will deploy but AI analysis will fail until the secret is populated."
-          fi
-
-          set +a
-
-          {
-            echo "AWS_REGION=${{ secrets.AWS_REGION }}"
-            echo "OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}"
-            echo "OPENROUTER_BASE_URL=${OPENROUTER_BASE_URL:-https://openrouter.ai/api/v1}"
-            echo "STATS_SECRET=${STATS_SECRET:-}"
-            echo "PROJECT_NAME=${PROJECT_NAME:-plainplan}"
-            echo "ENVIRONMENT=${ENVIRONMENT:-dev}"
-            echo "ENABLE_AURORA_SERVERLESS=${ENABLE_AURORA_SERVERLESS:-true}"
-            echo "AURORA_DATABASE_NAME=${AURORA_DATABASE_NAME:-plainplan}"
-            echo "AURORA_ENGINE_VERSION=${AURORA_ENGINE_VERSION:-16.4}"
-            echo "AURORA_MIN_CAPACITY=${AURORA_MIN_CAPACITY:-0.5}"
-            echo "AURORA_MAX_CAPACITY=${AURORA_MAX_CAPACITY:-1}"
-          } >> .env
+          cat > .env <<'ENVBLOCK'
+          AWS_REGION=${{ secrets.AWS_REGION }}
+          PROJECT_NAME=${{ vars.PROJECT_NAME || 'plainplan' }}
+          ENVIRONMENT=${{ vars.ENVIRONMENT || 'dev' }}
+          ENABLE_AURORA_SERVERLESS=${{ vars.ENABLE_AURORA_SERVERLESS || 'true' }}
+          AURORA_DATABASE_NAME=${{ vars.AURORA_DATABASE_NAME || 'plainplan' }}
+          AURORA_ENGINE_VERSION=${{ vars.AURORA_ENGINE_VERSION || '16.4' }}
+          AURORA_MIN_CAPACITY=${{ vars.AURORA_MIN_CAPACITY || '0.5' }}
+          AURORA_MAX_CAPACITY=${{ vars.AURORA_MAX_CAPACITY || '1' }}
+          CUSTOM_DOMAIN_NAME=${{ vars.CUSTOM_DOMAIN_NAME || '' }}
+          ACM_CERTIFICATE_ARN=${{ vars.ACM_CERTIFICATE_ARN || '' }}
+          TF_STATE_BUCKET=${{ vars.TF_STATE_BUCKET || '' }}
+          TF_STATE_REGION=${{ vars.TF_STATE_REGION || '' }}
+          TF_STATE_KEY=${{ vars.TF_STATE_KEY || '' }}
+          TF_LOCK_TABLE=${{ vars.TF_LOCK_TABLE || '' }}
+          ENVBLOCK
+          # Strip leading whitespace from heredoc
+          sed -i 's/^[[:space:]]*//' .env
 
       - name: Build Python Lambda artifact
         shell: bash

@@ -77,25 +77,8 @@ variable "aurora_max_capacity" {
   default     = 1
 }
 
-variable "openrouter_api_key" {
-  description = "OpenRouter API key. Empty on first bootstrap deploy; populated after secrets are set."
-  type        = string
-  default     = ""
-  sensitive   = true
-}
-
-variable "openrouter_base_url" {
-  description = "Optional OpenRouter API base URL"
-  type        = string
-  default     = "https://openrouter.ai/api/v1"
-}
-
-variable "stats_secret" {
-  description = "Bearer secret for /api/stats. Empty on first bootstrap deploy."
-  type        = string
-  default     = ""
-  sensitive   = true
-}
+# openrouter_api_key, openrouter_base_url, stats_secret are read
+# directly from Secrets Manager by Terraform (see config_secrets.tf).
 
 variable "custom_domain_name" {
   description = "Optional custom API domain (example: api.plainplan.click)"

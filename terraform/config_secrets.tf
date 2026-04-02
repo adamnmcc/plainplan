@@ -1,14 +1,14 @@
 # -------------------------------------------------------------------
 # AWS Secrets Manager + SSM Parameter Store entries for deploy config.
 #
-# Terraform creates the resources with placeholder values.
-# Populate real values via CLI *once* after first apply:
+# Terraform creates the secret shells. Populate real values via CLI:
 #
 #   aws secretsmanager put-secret-value \
 #     --secret-id plainplan/dev/OPENROUTER_API_KEY \
 #     --secret-string 'sk-or-v1-...' --region eu-west-1
 #
-# The CI workflow reads these at deploy time via sync_env_from_aws.sh.
+# Terraform reads the values directly via data sources — no secrets
+# flow through CI. Lambda gets them as env vars from Terraform.
 # -------------------------------------------------------------------
 
 variable "config_prefix" {
@@ -35,6 +35,30 @@ resource "aws_secretsmanager_secret" "stats_secret" {
   name        = "${var.config_prefix}/STATS_SECRET"
   description = "Bearer token for /api/stats endpoint"
   tags        = local.common_tags
+}
+
+# ---- Read secret values (empty string on first deploy before population) ----
+
+data "aws_secretsmanager_secret_version" "openrouter_api_key" {
+  secret_id  = aws_secretsmanager_secret.openrouter_api_key.id
+  depends_on = [aws_secretsmanager_secret.openrouter_api_key]
+}
+
+data "aws_secretsmanager_secret_version" "openrouter_base_url" {
+  secret_id  = aws_secretsmanager_secret.openrouter_base_url.id
+  depends_on = [aws_secretsmanager_secret.openrouter_base_url]
+}
+
+data "aws_secretsmanager_secret_version" "stats_secret" {
+  secret_id  = aws_secretsmanager_secret.stats_secret.id
+  depends_on = [aws_secretsmanager_secret.stats_secret]
+}
+
+locals {
+  # Read from data source; fall back to empty on first deploy.
+  secret_openrouter_api_key  = try(data.aws_secretsmanager_secret_version.openrouter_api_key.secret_string, "")
+  secret_openrouter_base_url = try(data.aws_secretsmanager_secret_version.openrouter_base_url.secret_string, "https://openrouter.ai/api/v1")
+  secret_stats_secret        = try(data.aws_secretsmanager_secret_version.stats_secret.secret_string, "")
 }
 
 # ---- SSM Parameters (non-sensitive config) ----

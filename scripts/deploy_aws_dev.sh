@@ -34,13 +34,6 @@ for key in "${required[@]}"; do
   fi
 done
 
-# Warn about empty app secrets — first deploy creates infra + secret containers.
-for key in OPENROUTER_API_KEY STATS_SECRET; do
-  if [[ -z "${!key:-}" ]]; then
-    echo "[deploy] WARNING: $key is empty. Lambda will start but AI analysis will fail until secrets are populated."
-  fi
-done
-
 if [[ -n "${AWS_SESSION_TOKEN:-}" ]]; then
   export AWS_SESSION_TOKEN
 fi
@@ -67,10 +60,6 @@ aurora_database_name     = "${AURORA_DATABASE_NAME:-plainplan}"
 aurora_engine_version    = "${AURORA_ENGINE_VERSION:-16.4}"
 aurora_min_capacity      = ${AURORA_MIN_CAPACITY:-0.5}
 aurora_max_capacity      = ${AURORA_MAX_CAPACITY:-1}
-
-openrouter_api_key  = "${OPENROUTER_API_KEY:-}"
-openrouter_base_url = "${OPENROUTER_BASE_URL:-https://openrouter.ai/api/v1}"
-stats_secret       = "${STATS_SECRET:-}"
 
 custom_domain_name = "${CUSTOM_DOMAIN_NAME:-api.plainplan.click}"
 acm_certificate_arn = "${ACM_CERTIFICATE_ARN:-}"
