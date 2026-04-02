@@ -67,29 +67,10 @@ EOF
 
 pushd "$TF_DIR" >/dev/null
 
-if [[ -n "${TF_STATE_BUCKET:-}" ]]; then
-  if [[ -z "${TF_STATE_REGION:-}" ]]; then
-    echo "[deploy] TF_STATE_REGION is required when TF_STATE_BUCKET is set"
-    exit 1
-  fi
+BACKEND_HCL="$TF_DIR/${ENVIRONMENT:-dev}.backend.hcl"
 
-  TF_STATE_KEY="${TF_STATE_KEY:-plainplan/dev/terraform.tfstate}"
-  BACKEND_ARGS=(
-    -backend-config="bucket=${TF_STATE_BUCKET}"
-    -backend-config="key=${TF_STATE_KEY}"
-    -backend-config="region=${TF_STATE_REGION}"
-  )
-
-  if [[ -n "${TF_LOCK_TABLE:-}" ]]; then
-    BACKEND_ARGS+=( -backend-config="dynamodb_table=${TF_LOCK_TABLE}" )
-  fi
-
-  echo "[deploy] terraform init (remote backend: s3://${TF_STATE_BUCKET}/${TF_STATE_KEY})"
-  terraform init -reconfigure "${BACKEND_ARGS[@]}"
-else
-  echo "[deploy] terraform init (local backend disabled for this run)"
-  terraform init -backend=false
-fi
+echo "[deploy] terraform init (backend config: $BACKEND_HCL)"
+terraform init -reconfigure -backend-config="$BACKEND_HCL"
 
 echo "[deploy] terraform apply"
 terraform apply -auto-approve

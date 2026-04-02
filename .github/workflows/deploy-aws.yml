@@ -62,10 +62,6 @@ jobs:
           AURORA_MAX_CAPACITY=${{ vars.AURORA_MAX_CAPACITY || '1' }}
           CUSTOM_DOMAIN_NAME=${{ vars.CUSTOM_DOMAIN_NAME || '' }}
           ACM_CERTIFICATE_ARN=${{ vars.ACM_CERTIFICATE_ARN || '' }}
-          TF_STATE_BUCKET=${{ vars.TF_STATE_BUCKET || '' }}
-          TF_STATE_REGION=${{ vars.TF_STATE_REGION || '' }}
-          TF_STATE_KEY=${{ vars.TF_STATE_KEY || '' }}
-          TF_LOCK_TABLE=${{ vars.TF_LOCK_TABLE || '' }}
           ENVBLOCK
           # Strip leading whitespace from heredoc
           sed -i 's/^[[:space:]]*//' .env
