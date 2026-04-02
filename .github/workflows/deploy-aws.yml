@@ -50,6 +50,9 @@ jobs:
 
       - name: Sync deploy env from AWS
         shell: bash
+        env:
+          FALLBACK_OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY || secrets.OPENAI_API_KEY }}
+          FALLBACK_OPENROUTER_BASE_URL: ${{ secrets.OPENROUTER_BASE_URL || secrets.OPENAI_BASE_URL }}
         run: |
           chmod +x scripts/sync_env_from_aws.sh
           scripts/sync_env_from_aws.sh \
@@ -64,8 +67,21 @@ jobs:
             OPENROUTER_API_KEY="$OPENAI_API_KEY"
           fi
 
+          if [[ -z "${OPENROUTER_API_KEY:-}" && -n "${FALLBACK_OPENROUTER_API_KEY:-}" ]]; then
+            OPENROUTER_API_KEY="$FALLBACK_OPENROUTER_API_KEY"
+          fi
+
           if [[ -z "${OPENROUTER_BASE_URL:-}" && -n "${OPENAI_BASE_URL:-}" ]]; then
             OPENROUTER_BASE_URL="$OPENAI_BASE_URL"
+          fi
+
+          if [[ -z "${OPENROUTER_BASE_URL:-}" && -n "${FALLBACK_OPENROUTER_BASE_URL:-}" ]]; then
+            OPENROUTER_BASE_URL="$FALLBACK_OPENROUTER_BASE_URL"
+          fi
+
+          if [[ -z "${OPENROUTER_API_KEY:-}" ]]; then
+            echo "OPENROUTER_API_KEY is required. Provide it in AWS config or GitHub secrets OPENROUTER_API_KEY/OPENAI_API_KEY."
+            exit 1
           fi
 
           set +a
