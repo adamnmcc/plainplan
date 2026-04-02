@@ -37,28 +37,39 @@ resource "aws_secretsmanager_secret" "stats_secret" {
   tags        = local.common_tags
 }
 
-# ---- Read secret values (empty string on first deploy before population) ----
+# ---- Seed secret versions (placeholder on first deploy, ignored after manual update) ----
 
-data "aws_secretsmanager_secret_version" "openrouter_api_key" {
-  secret_id  = aws_secretsmanager_secret.openrouter_api_key.id
-  depends_on = [aws_secretsmanager_secret.openrouter_api_key]
+resource "aws_secretsmanager_secret_version" "openrouter_api_key" {
+  secret_id     = aws_secretsmanager_secret.openrouter_api_key.id
+  secret_string = "REPLACE_ME"
+
+  lifecycle {
+    ignore_changes = [secret_string]
+  }
 }
 
-data "aws_secretsmanager_secret_version" "openrouter_base_url" {
-  secret_id  = aws_secretsmanager_secret.openrouter_base_url.id
-  depends_on = [aws_secretsmanager_secret.openrouter_base_url]
+resource "aws_secretsmanager_secret_version" "openrouter_base_url" {
+  secret_id     = aws_secretsmanager_secret.openrouter_base_url.id
+  secret_string = "https://openrouter.ai/api/v1"
+
+  lifecycle {
+    ignore_changes = [secret_string]
+  }
 }
 
-data "aws_secretsmanager_secret_version" "stats_secret" {
-  secret_id  = aws_secretsmanager_secret.stats_secret.id
-  depends_on = [aws_secretsmanager_secret.stats_secret]
+resource "aws_secretsmanager_secret_version" "stats_secret" {
+  secret_id     = aws_secretsmanager_secret.stats_secret.id
+  secret_string = "REPLACE_ME"
+
+  lifecycle {
+    ignore_changes = [secret_string]
+  }
 }
 
 locals {
-  # Read from data source; fall back to empty on first deploy.
-  secret_openrouter_api_key  = try(data.aws_secretsmanager_secret_version.openrouter_api_key.secret_string, "")
-  secret_openrouter_base_url = try(data.aws_secretsmanager_secret_version.openrouter_base_url.secret_string, "https://openrouter.ai/api/v1")
-  secret_stats_secret        = try(data.aws_secretsmanager_secret_version.stats_secret.secret_string, "")
+  secret_openrouter_api_key  = aws_secretsmanager_secret_version.openrouter_api_key.secret_string
+  secret_openrouter_base_url = aws_secretsmanager_secret_version.openrouter_base_url.secret_string
+  secret_stats_secret        = aws_secretsmanager_secret_version.stats_secret.secret_string
 }
 
 # ---- SSM Parameters (non-sensitive config) ----

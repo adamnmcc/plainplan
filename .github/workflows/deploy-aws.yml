@@ -38,8 +38,6 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_wrapper: false
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -48,43 +46,41 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY || secrets.AWS_IAM_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Write deploy config
-        shell: bash
-        run: |
-          cat > .env <<'ENVBLOCK'
-          AWS_REGION=${{ secrets.AWS_REGION }}
-          PROJECT_NAME=${{ vars.PROJECT_NAME || 'plainplan' }}
-          ENVIRONMENT=${{ vars.ENVIRONMENT || 'dev' }}
-          ENABLE_AURORA_SERVERLESS=${{ vars.ENABLE_AURORA_SERVERLESS || 'true' }}
-          AURORA_DATABASE_NAME=${{ vars.AURORA_DATABASE_NAME || 'plainplan' }}
-          AURORA_ENGINE_VERSION=${{ vars.AURORA_ENGINE_VERSION || '16.4' }}
-          AURORA_MIN_CAPACITY=${{ vars.AURORA_MIN_CAPACITY || '0.5' }}
-          AURORA_MAX_CAPACITY=${{ vars.AURORA_MAX_CAPACITY || '1' }}
-          CUSTOM_DOMAIN_NAME=${{ vars.CUSTOM_DOMAIN_NAME || '' }}
-          ACM_CERTIFICATE_ARN=${{ vars.ACM_CERTIFICATE_ARN || '' }}
-          ENVBLOCK
-          # Strip leading whitespace from heredoc
-          sed -i 's/^[[:space:]]*//' .env
-
       - name: Build Python Lambda artifact
-        shell: bash
         run: |
-          chmod +x scripts/build_lambda_python.sh scripts/deploy_aws_dev.sh
+          chmod +x scripts/build_lambda_python.sh
           scripts/build_lambda_python.sh
 
-      - name: Deploy infrastructure and app
-        shell: bash
-        run: |
-          scripts/deploy_aws_dev.sh
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init -backend-config=dev.backend.hcl
 
-      - name: Verify custom domain health
-        shell: bash
+      - name: Terraform Plan
+        working-directory: terraform
+        run: terraform plan -var-file=dev.tfvars -out=tfplan
+
+      - name: Terraform Apply
+        working-directory: terraform
+        run: terraform apply -auto-approve tfplan
+
+      - name: Bootstrap Aurora schema
+        working-directory: terraform
         run: |
-          set -e
-          # shellcheck disable=SC1091
-          source .env
-          if [[ -n "${CUSTOM_DOMAIN_NAME:-}" ]]; then
-            curl -fsS "https://${CUSTOM_DOMAIN_NAME}/health"
+          ENABLE_AURORA=$(terraform output -raw enable_aurora_serverless 2>/dev/null || echo "false")
+          if [[ "$ENABLE_AURORA" == "true" ]]; then
+            python3 ../scripts/bootstrap_aurora_data_api.py \
+              --cluster-arn "$(terraform output -raw aurora_cluster_arn)" \
+              --secret-arn "$(terraform output -raw aurora_secret_arn)" \
+              --database "$(terraform output -raw aurora_database_name)" \
+              --schema-file ../schema/schema.sql \
+              --region "${{ secrets.AWS_REGION }}"
           else
-            echo "No custom domain configured; skipping custom domain health check"
+            echo "Aurora not enabled, skipping schema bootstrap"
           fi
+
+      - name: Health check
+        working-directory: terraform
+        run: |
+          API_URL="$(terraform output -raw api_invoke_url)"
+          echo "API URL: $API_URL"
+          curl -fsS "$API_URL/health"
