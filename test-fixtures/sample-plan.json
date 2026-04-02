@@ -1,0 +1,120 @@
+{
+  "format_version": "1.2",
+  "terraform_version": "1.7.4",
+  "planned_values": {},
+  "resource_changes": [
+    {
+      "address": "aws_instance.web_server",
+      "mode": "managed",
+      "type": "aws_instance",
+      "name": "web_server",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": {
+          "ami": "ami-0c55b159cbfafe1f0",
+          "instance_type": "t3.medium",
+          "tags": { "Name": "web-server-prod", "Environment": "production" },
+          "vpc_security_group_ids": ["sg-12345678"],
+          "subnet_id": "subnet-abcdef01",
+          "root_block_device": [{ "volume_size": 50, "volume_type": "gp3", "encrypted": true }]
+        },
+        "after_unknown": { "id": true, "arn": true, "public_ip": true, "private_ip": true }
+      }
+    },
+    {
+      "address": "aws_security_group.web_sg",
+      "mode": "managed",
+      "type": "aws_security_group",
+      "name": "web_sg",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": ["update"],
+        "before": {
+          "id": "sg-12345678", "name": "web-sg",
+          "ingress": [{ "from_port": 443, "to_port": 443, "protocol": "tcp", "cidr_blocks": ["10.0.0.0/8"] }],
+          "egress": [{ "from_port": 0, "to_port": 0, "protocol": "-1", "cidr_blocks": ["0.0.0.0/0"] }]
+        },
+        "after": {
+          "id": "sg-12345678", "name": "web-sg",
+          "ingress": [
+            { "from_port": 443, "to_port": 443, "protocol": "tcp", "cidr_blocks": ["0.0.0.0/0"] },
+            { "from_port": 80, "to_port": 80, "protocol": "tcp", "cidr_blocks": ["0.0.0.0/0"] }
+          ],
+          "egress": [{ "from_port": 0, "to_port": 0, "protocol": "-1", "cidr_blocks": ["0.0.0.0/0"] }]
+        },
+        "after_unknown": {}
+      }
+    },
+    {
+      "address": "aws_db_instance.main",
+      "mode": "managed",
+      "type": "aws_db_instance",
+      "name": "main",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": ["update"],
+        "before": { "identifier": "prod-database", "engine": "postgres", "engine_version": "14.9", "instance_class": "db.t3.micro", "allocated_storage": 20, "multi_az": false, "backup_retention_period": 7, "storage_encrypted": true },
+        "after": { "identifier": "prod-database", "engine": "postgres", "engine_version": "15.4", "instance_class": "db.t3.small", "allocated_storage": 50, "multi_az": true, "backup_retention_period": 14, "storage_encrypted": true },
+        "after_unknown": {}
+      }
+    },
+    {
+      "address": "aws_s3_bucket.old_logs",
+      "mode": "managed",
+      "type": "aws_s3_bucket",
+      "name": "old_logs",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": ["delete"],
+        "before": { "bucket": "mycompany-old-logs-2023", "acl": "private", "versioning": { "enabled": true }, "tags": { "Name": "old-logs", "Environment": "production" } },
+        "after": null,
+        "after_unknown": {}
+      }
+    },
+    {
+      "address": "aws_iam_role.lambda_exec",
+      "mode": "managed",
+      "type": "aws_iam_role",
+      "name": "lambda_exec",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": { "name": "lambda-execution-role", "assume_role_policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Principal\":{\"Service\":\"lambda.amazonaws.com\"},\"Effect\":\"Allow\"}]}", "tags": { "Name": "lambda-exec-role" } },
+        "after_unknown": { "id": true, "arn": true }
+      }
+    },
+    {
+      "address": "aws_iam_role_policy.lambda_s3_access",
+      "mode": "managed",
+      "type": "aws_iam_role_policy",
+      "name": "lambda_s3_access",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": { "name": "lambda-s3-access", "role": "lambda-execution-role", "policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Action\":[\"s3:GetObject\",\"s3:PutObject\"],\"Resource\":\"arn:aws:s3:::mycompany-data/*\"}]}" },
+        "after_unknown": { "id": true }
+      }
+    },
+    {
+      "address": "aws_cloudwatch_log_group.lambda_logs",
+      "mode": "managed",
+      "type": "aws_cloudwatch_log_group",
+      "name": "lambda_logs",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": ["create"],
+        "before": null,
+        "after": { "name": "/aws/lambda/data-processor", "retention_in_days": 30, "tags": { "Environment": "production" } },
+        "after_unknown": { "id": true, "arn": true }
+      }
+    }
+  ],
+  "output_changes": {
+    "web_server_ip": { "actions": ["create"], "before": null, "after_unknown": true },
+    "database_endpoint": { "actions": ["update"], "before": "prod-database.abc123.us-east-1.rds.amazonaws.com:5432", "after_unknown": true }
+  }
+}

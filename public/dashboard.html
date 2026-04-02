@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — PlanPlain</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #0a0a0c; --surface: #111114; --surface-2: #18181c; --surface-3: #1e1e24;
+      --border: #2a2a30; --border-hover: #3a3a44; --text: #e8e8ec; --text-dim: #8888a0;
+      --text-muted: #555566; --accent: #22c55e; --accent-dim: #16a34a;
+      --accent-bg: rgba(34,197,94,0.08); --accent-border: rgba(34,197,94,0.2);
+      --risk-red: #ef4444; --risk-red-bg: rgba(239,68,68,0.1);
+      --risk-yellow: #eab308; --risk-yellow-bg: rgba(234,179,8,0.1);
+      --risk-green: #22c55e; --risk-green-bg: rgba(34,197,94,0.1);
+      --mono: 'JetBrains Mono', monospace;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Space Grotesk', sans-serif; min-height: 100vh; }
+    .nav { border-bottom: 1px solid var(--border); padding: 0 32px; height: 56px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { font-size: 16px; font-weight: 700; color: var(--text); text-decoration: none; letter-spacing: -0.3px; }
+    .nav-logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 24px; align-items: center; }
+    .nav-links a { font-size: 14px; color: var(--text-dim); text-decoration: none; transition: color 0.15s; }
+    .nav-links a:hover { color: var(--text); }
+    .main { max-width: 1040px; margin: 0 auto; padding: 40px 24px 80px; }
+    .page-header { margin-bottom: 32px; }
+    .page-header h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 6px; }
+    .page-header p { font-size: 14px; color: var(--text-dim); }
+    .key-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; margin-bottom: 28px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .key-left { display: flex; flex-direction: column; gap: 4px; }
+    .key-label { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+    .key-value { font-family: var(--mono); font-size: 15px; color: var(--text); letter-spacing: 0.02em; }
+    .key-meta { display: flex; gap: 20px; flex-wrap: wrap; }
+    .key-meta-item { display: flex; flex-direction: column; gap: 2px; }
+    .key-meta-label { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+    .key-meta-value { font-size: 13px; color: var(--text-dim); }
+    .btn-copy { background: var(--surface-2); border: 1px solid var(--border); color: var(--text-dim); padding: 8px 16px; border-radius: 8px; font-size: 13px; font-family: 'Space Grotesk', sans-serif; cursor: pointer; transition: all 0.15s; white-space: nowrap; font-weight: 500; }
+    .btn-copy:hover { border-color: var(--border-hover); color: var(--text); }
+    .btn-copy.copied { border-color: var(--accent-border); color: var(--accent); }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 28px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+    .stat-label { font-size: 12px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+    .stat-value { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; color: var(--text); line-height: 1; }
+    .stat-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+    .stat-card.accent .stat-value { color: var(--accent); }
+    .stat-card.warn .stat-value { color: var(--risk-yellow); }
+    .stat-card.ok .stat-value { color: var(--accent); }
+    .section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; margin-bottom: 20px; }
+    .section-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .section-title .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+    .rate-bars { display: flex; flex-direction: column; gap: 14px; }
+    .rate-bar-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+    .rate-bar-label { font-size: 13px; color: var(--text-dim); font-weight: 500; }
+    .rate-bar-nums { font-size: 13px; font-family: var(--mono); color: var(--text-dim); }
+    .rate-bar-track { height: 6px; background: var(--surface-3); border-radius: 99px; overflow: hidden; }
+    .rate-bar-fill { height: 100%; border-radius: 99px; background: var(--accent); transition: width 0.4s ease; }
+    .rate-bar-fill.warn { background: var(--risk-yellow); }
+    .rate-bar-fill.danger { background: var(--risk-red); }
+    .requests-table-wrap { overflow-x: auto; }
+    .requests-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .requests-table th { text-align: left; padding: 10px 12px; font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    .requests-table td { padding: 11px 12px; border-bottom: 1px solid rgba(42,42,48,0.6); color: var(--text-dim); font-family: var(--mono); }
+    .requests-table tr:last-child td { border-bottom: none; }
+    .requests-table tr:hover td { background: var(--surface-2); }
+    .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; font-family: var(--mono); }
+    .badge-ok { background: var(--risk-green-bg); color: var(--risk-green); }
+    .badge-error { background: var(--risk-red-bg); color: var(--risk-red); }
+    .badge-high { background: var(--risk-red-bg); color: var(--risk-red); }
+    .badge-medium { background: var(--risk-yellow-bg); color: var(--risk-yellow); }
+    .badge-low { background: var(--risk-green-bg); color: var(--risk-green); }
+    .badge-none { background: var(--surface-3); color: var(--text-muted); }
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 14px; }
+    .empty-state strong { display: block; font-size: 16px; color: var(--text-dim); margin-bottom: 8px; }
+    .state-center { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center; gap: 16px; }
+    .state-center h2 { font-size: 20px; font-weight: 700; }
+    .state-center p { font-size: 14px; color: var(--text-dim); max-width: 400px; }
+    .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .key-form { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 32px; max-width: 480px; width: 100%; text-align: left; }
+    .key-form h2 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .key-form p { font-size: 14px; color: var(--text-dim); margin-bottom: 20px; }
+    .input-row { display: flex; gap: 10px; }
+    .key-input { flex: 1; background: var(--surface-2); border: 1px solid var(--border); color: var(--text); padding: 10px 14px; border-radius: 8px; font-family: var(--mono); font-size: 13px; outline: none; transition: border-color 0.15s; }
+    .key-input:focus { border-color: var(--accent-border); }
+    .key-input::placeholder { color: var(--text-muted); }
+    .btn-primary { background: var(--accent); color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Space Grotesk', sans-serif; transition: background 0.15s; white-space: nowrap; }
+    .btn-primary:hover { background: #4ade80; }
+    .form-error { font-size: 13px; color: var(--risk-red); margin-top: 10px; }
+    #dashboard { display: none; }
+    @media (max-width: 600px) {
+      .nav { padding: 0 16px; }
+      .main { padding: 24px 16px 60px; }
+      .key-card { flex-direction: column; align-items: flex-start; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+<nav class="nav">
+  <a href="/" class="nav-logo">Plan<span>Plain</span></a>
+  <div class="nav-links"><a href="/docs">Docs</a><a href="/">Home</a></div>
+</nav>
+<div id="state-loading" class="main"><div class="state-center"><div class="spinner"></div><p>Loading dashboard…</p></div></div>
+<div id="state-no-key" class="main" style="display:none">
+  <div class="state-center">
+    <div class="key-form">
+      <h2>View your dashboard</h2>
+      <p>Enter your API key to see usage stats and recent requests.</p>
+      <div class="input-row">
+        <input id="key-input" class="key-input" type="text" placeholder="pp_live_..." autocomplete="off" spellcheck="false">
+        <button class="btn-primary" onclick="loadWithKey()">View →</button>
+      </div>
+      <div id="form-error" class="form-error" style="display:none"></div>
+      <p style="margin-top:16px; font-size:12px; color: var(--text-muted)">Don't have a key? <a href="/" style="color: var(--accent); text-decoration:none">Get one on the homepage →</a></p>
+    </div>
+  </div>
+</div>
+<div id="state-error" class="main" style="display:none">
+  <div class="state-center">
+    <h2>Unable to load</h2>
+    <p id="error-msg">Something went wrong. Check your API key and try again.</p>
+    <a href="/dashboard" style="color: var(--accent); font-size:14px; text-decoration:none">← Try again</a>
+  </div>
+</div>
+<div id="dashboard" class="main">
+  <div class="page-header"><h1>API Dashboard</h1><p id="dash-subtitle">Usage stats and recent requests for your API key.</p></div>
+  <div class="key-card">
+    <div class="key-left"><div class="key-label">Your API Key</div><div class="key-value" id="key-display">pp_live_••••••••</div></div>
+    <div class="key-meta">
+      <div class="key-meta-item"><div class="key-meta-label">Email</div><div class="key-meta-value" id="key-email">—</div></div>
+      <div class="key-meta-item"><div class="key-meta-label">Created</div><div class="key-meta-value" id="key-created">—</div></div>
+      <div class="key-meta-item"><div class="key-meta-label">Last used</div><div class="key-meta-value" id="key-last-used">—</div></div>
+    </div>
+    <button class="btn-copy" id="copy-btn" onclick="copyKey()">Copy key</button>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card accent"><div class="stat-label">Today</div><div class="stat-value" id="stat-today">—</div><div class="stat-sub">requests</div></div>
+    <div class="stat-card"><div class="stat-label">Last 7 days</div><div class="stat-value" id="stat-week">—</div><div class="stat-sub">requests</div></div>
+    <div class="stat-card"><div class="stat-label">Last 30 days</div><div class="stat-value" id="stat-month">—</div><div class="stat-sub">requests</div></div>
+    <div class="stat-card" id="stat-card-err"><div class="stat-label">Error rate</div><div class="stat-value" id="stat-error-rate">—</div><div class="stat-sub">last 30 days</div></div>
+    <div class="stat-card"><div class="stat-label">Avg response</div><div class="stat-value" id="stat-avg-ms">—</div><div class="stat-sub" id="stat-avg-ms-sub">ms</div></div>
+    <div class="stat-card"><div class="stat-label">Total requests</div><div class="stat-value" id="stat-total">—</div><div class="stat-sub">all time</div></div>
+  </div>
+  <div class="section">
+    <div class="section-title"><span class="dot"></span>Rate limits</div>
+    <div class="rate-bars">
+      <div class="rate-bar-item">
+        <div class="rate-bar-header"><span class="rate-bar-label">Per minute</span><span class="rate-bar-nums" id="rl-minute-nums">— / —</span></div>
+        <div class="rate-bar-track"><div class="rate-bar-fill" id="rl-minute-fill" style="width:0%"></div></div>
+      </div>
+      <div class="rate-bar-item">
+        <div class="rate-bar-header"><span class="rate-bar-label">Per day</span><span class="rate-bar-nums" id="rl-day-nums">— / —</span></div>
+        <div class="rate-bar-track"><div class="rate-bar-fill" id="rl-day-fill" style="width:0%"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title"><span class="dot"></span>Recent requests</div>
+    <div class="requests-table-wrap" id="recent-wrap"><div class="empty-state"><strong>No requests yet</strong>Make your first analysis to see it here.</div></div>
+  </div>
+</div>
+<script>
+  function formatDate(iso) { if (!iso) return 'Never'; const d = new Date(iso); return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
+  function formatTime(iso) { if (!iso) return '—'; const d = new Date(iso); const now = new Date(); const diffMs = now - d; const diffMin = Math.floor(diffMs/60000); const diffHr = Math.floor(diffMs/3600000); const diffDay = Math.floor(diffMs/86400000); if (diffMin < 2) return 'just now'; if (diffMin < 60) return `${diffMin}m ago`; if (diffHr < 24) return `${diffHr}h ago`; if (diffDay < 7) return `${diffDay}d ago`; return formatDate(iso); }
+  function el(id) { return document.getElementById(id); }
+  function show(id) { el(id).style.display = ''; }
+  function hide(id) { el(id).style.display = 'none'; }
+  let _rawKey = null;
+  function getKeyFromUrl() { return new URLSearchParams(window.location.search).get('key') || ''; }
+  function loadWithKey() { const input = el('key-input').value.trim(); if (!input.startsWith('pp_live_')) { el('form-error').textContent = 'Key must start with pp_live_'; show('form-error'); return; } window.location.href = '/dashboard?key=' + encodeURIComponent(input); }
+  el('key-input') && el('key-input').addEventListener('keydown', e => { if (e.key === 'Enter') loadWithKey(); });
+  function copyKey() { if (!_rawKey) return; navigator.clipboard.writeText(_rawKey).then(() => { const btn = el('copy-btn'); btn.textContent = 'Copied!'; btn.classList.add('copied'); setTimeout(() => { btn.textContent = 'Copy key'; btn.classList.remove('copied'); }, 2000); }); }
+  function renderBarFill(fillEl, numsEl, used, limit) { const pct = limit > 0 ? Math.min((used/limit)*100, 100) : 0; fillEl.style.width = pct + '%'; numsEl.textContent = `${used} / ${limit}`; fillEl.className = 'rate-bar-fill'; if (pct >= 90) fillEl.classList.add('danger'); else if (pct >= 70) fillEl.classList.add('warn'); }
+  function buildRecentTable(rows) {
+    if (!rows || rows.length === 0) return null;
+    const table = document.createElement('table'); table.className = 'requests-table';
+    const thead = table.createTHead(); const hrow = thead.insertRow();
+    ['Time','Risk','Resources','Response','Status'].forEach(h => { const th = document.createElement('th'); th.textContent = h; hrow.appendChild(th); });
+    const tbody = table.createTBody();
+    rows.forEach(r => {
+      const tr = tbody.insertRow();
+      const tdTime = tr.insertCell(); tdTime.textContent = formatTime(r.timestamp); tdTime.title = r.timestamp ? new Date(r.timestamp).toLocaleString() : '';
+      const tdRisk = tr.insertCell(); if (r.risk_level) { const badge = document.createElement('span'); badge.className = 'badge badge-' + r.risk_level.toLowerCase(); badge.textContent = r.risk_level; tdRisk.appendChild(badge); } else { tdRisk.innerHTML = '<span class="badge badge-none">—</span>'; }
+      const tdRes = tr.insertCell(); tdRes.textContent = r.resource_count != null ? r.resource_count : '—';
+      const tdMs = tr.insertCell(); tdMs.textContent = r.response_time_ms != null ? r.response_time_ms + 'ms' : '—';
+      const tdStatus = tr.insertCell(); const statusBadge = document.createElement('span'); statusBadge.className = r.status === 'error' ? 'badge badge-error' : 'badge badge-ok'; statusBadge.textContent = r.status === 'error' ? 'error' : 'ok'; if (r.error) statusBadge.title = r.error; tdStatus.appendChild(statusBadge);
+    });
+    return table;
+  }
+  function renderDashboard(data) {
+    el('key-display').textContent = data.key.prefix + '••••••••••••'; el('key-email').textContent = data.key.email || '—'; el('key-created').textContent = formatDate(data.key.created_at); el('key-last-used').textContent = formatTime(data.key.last_used_at); el('dash-subtitle').textContent = `Usage stats for ${data.key.prefix}••• · ${data.key.email}`;
+    el('stat-today').textContent = data.usage.today.toLocaleString(); el('stat-week').textContent = data.usage.week.toLocaleString(); el('stat-month').textContent = data.usage.month.toLocaleString(); el('stat-total').textContent = data.usage.total.toLocaleString();
+    const errRate = parseFloat(data.usage.error_rate); el('stat-error-rate').textContent = errRate + '%'; if (errRate >= 10) el('stat-card-err').classList.add('warn'); else el('stat-card-err').classList.add('ok');
+    const avgMs = data.usage.avg_response_ms; el('stat-avg-ms').textContent = avgMs > 0 ? avgMs.toLocaleString() : '—'; el('stat-avg-ms-sub').textContent = avgMs > 0 ? 'ms avg' : 'no data yet';
+    const rl = data.rate_limits; renderBarFill(el('rl-minute-fill'), el('rl-minute-nums'), rl.used_minute, rl.per_minute); renderBarFill(el('rl-day-fill'), el('rl-day-nums'), rl.used_day, rl.per_day);
+    const recentWrap = el('recent-wrap'); const table = buildRecentTable(data.recent_requests); if (table) { recentWrap.innerHTML = ''; recentWrap.appendChild(table); }
+  }
+  async function init() {
+    const key = getKeyFromUrl();
+    if (!key) { hide('state-loading'); show('state-no-key'); return; }
+    if (!key.startsWith('pp_live_')) { hide('state-loading'); el('error-msg').textContent = 'Invalid API key format.'; show('state-error'); return; }
+    _rawKey = key;
+    try {
+      const resp = await fetch('/api/dashboard?key=' + encodeURIComponent(key));
+      const data = await resp.json();
+      if (!resp.ok || !data.success) { hide('state-loading'); el('error-msg').textContent = data.message || 'API key not found.'; show('state-error'); return; }
+      renderDashboard(data); hide('state-loading'); el('dashboard').style.display = '';
+    } catch (err) { hide('state-loading'); el('error-msg').textContent = 'Network error.'; show('state-error'); }
+  }
+  init();
+</script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+name: Deploy PlainPlan to AWS
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - "python_service/**"
+      - "public/**"
+      - "test-fixtures/**"
+      - "terraform/**"
+      - "requirements-python.txt"
+      - "scripts/**"
+      - ".github/workflows/deploy-aws.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: plainplan-deploy-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    environment: prod
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID || secrets.AWS_IAM_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY || secrets.AWS_IAM_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Sync deploy env from AWS
+        shell: bash
+        run: |
+          chmod +x scripts/sync_env_from_aws.sh
+          scripts/sync_env_from_aws.sh \
+            --prefix "${{ vars.AWS_CONFIG_PREFIX || secrets.AWS_CONFIG_PREFIX || 'plainplan/dev' }}" \
+            --region "${{ secrets.AWS_REGION }}"
+
+          # shellcheck disable=SC1091
+          set -a
+          source .env
+          set +a
+
+          {
+            echo "AWS_REGION=${{ secrets.AWS_REGION }}"
+            echo "PROJECT_NAME=${PROJECT_NAME:-plainplan}"
+            echo "ENVIRONMENT=${ENVIRONMENT:-dev}"
+            echo "ENABLE_AURORA_SERVERLESS=${ENABLE_AURORA_SERVERLESS:-true}"
+            echo "AURORA_DATABASE_NAME=${AURORA_DATABASE_NAME:-plainplan}"
+            echo "AURORA_ENGINE_VERSION=${AURORA_ENGINE_VERSION:-16.4}"
+            echo "AURORA_MIN_CAPACITY=${AURORA_MIN_CAPACITY:-0.5}"
+            echo "AURORA_MAX_CAPACITY=${AURORA_MAX_CAPACITY:-1}"
+          } >> .env
+
+      - name: Build Python Lambda artifact
+        shell: bash
+        run: |
+          chmod +x scripts/build_lambda_python.sh scripts/deploy_aws_dev.sh
+          scripts/build_lambda_python.sh
+
+      - name: Deploy infrastructure and app
+        shell: bash
+        run: |
+          scripts/deploy_aws_dev.sh
+
+      - name: Verify custom domain health
+        shell: bash
+        run: |
+          set -e
+          # shellcheck disable=SC1091
+          source .env
+          if [[ -n "${CUSTOM_DOMAIN_NAME:-}" ]]; then
+            curl -fsS "https://${CUSTOM_DOMAIN_NAME}/health"
+          else
+            echo "No custom domain configured; skipping custom domain health check"
+          fi

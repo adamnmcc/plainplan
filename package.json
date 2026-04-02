@@ -1,0 +1,20 @@
+{
+  "name": "planplain",
+  "version": "1.0.0",
+  "description": "Terraform plan analysis API — plain-English summaries, risk flags, and PR-ready markdown",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build": "npm run migrate",
+    "migrate": "node migrate.js",
+    "build:lambda:python": "bash scripts/build_lambda_python.sh",
+    "deploy:aws:dev": "bash scripts/deploy_aws_dev.sh",
+    "env:sync:aws": "bash scripts/sync_env_from_aws.sh"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "openai": "^4.77.0",
+    "pg": "^8.11.3"
+  }
+}

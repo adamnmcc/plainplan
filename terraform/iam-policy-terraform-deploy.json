@@ -1,0 +1,118 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "TerraformReadIdentity",
+      "Effect": "Allow",
+      "Action": [
+        "sts:GetCallerIdentity"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ManageLambdaFunction",
+      "Effect": "Allow",
+      "Action": [
+        "lambda:CreateFunction",
+        "lambda:DeleteFunction",
+        "lambda:GetFunction",
+        "lambda:GetFunctionConfiguration",
+        "lambda:UpdateFunctionCode",
+        "lambda:UpdateFunctionConfiguration",
+        "lambda:AddPermission",
+        "lambda:RemovePermission",
+        "lambda:GetPolicy",
+        "lambda:ListVersionsByFunction",
+        "lambda:PublishVersion",
+        "lambda:TagResource",
+        "lambda:UntagResource",
+        "lambda:ListTags"
+      ],
+      "Resource": "arn:aws:lambda:REGION:ACCOUNT_ID:function:plainplan-*"
+    },
+    {
+      "Sid": "ManageLambdaExecutionRole",
+      "Effect": "Allow",
+      "Action": [
+        "iam:CreateRole",
+        "iam:DeleteRole",
+        "iam:GetRole",
+        "iam:UpdateAssumeRolePolicy",
+        "iam:TagRole",
+        "iam:UntagRole",
+        "iam:PassRole"
+      ],
+      "Resource": "arn:aws:iam::ACCOUNT_ID:role/plainplan-*-lambda-role",
+      "Condition": {
+        "StringEquals": {
+          "iam:PassedToService": "lambda.amazonaws.com"
+        }
+      }
+    },
+    {
+      "Sid": "AttachLambdaBasicExecutionManagedPolicy",
+      "Effect": "Allow",
+      "Action": [
+        "iam:AttachRolePolicy",
+        "iam:DetachRolePolicy"
+      ],
+      "Resource": "arn:aws:iam::ACCOUNT_ID:role/plainplan-*-lambda-role",
+      "Condition": {
+        "ArnEquals": {
+          "iam:PolicyARN": "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+        }
+      }
+    },
+    {
+      "Sid": "ManageCloudWatchLogGroupForLambda",
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:DeleteLogGroup",
+        "logs:PutRetentionPolicy",
+        "logs:DescribeLogGroups",
+        "logs:TagResource",
+        "logs:UntagResource",
+        "logs:ListTagsForResource"
+      ],
+      "Resource": [
+        "arn:aws:logs:REGION:ACCOUNT_ID:log-group:/aws/lambda/plainplan-*",
+        "arn:aws:logs:REGION:ACCOUNT_ID:log-group:/aws/lambda/plainplan-*:*"
+      ]
+    },
+    {
+      "Sid": "ManageHttpApiGatewayV2",
+      "Effect": "Allow",
+      "Action": [
+        "apigateway:GET",
+        "apigateway:POST",
+        "apigateway:PATCH",
+        "apigateway:DELETE"
+      ],
+      "Resource": [
+        "arn:aws:apigateway:REGION::/apis",
+        "arn:aws:apigateway:REGION::/apis/*",
+        "arn:aws:apigateway:REGION::/apis/*/integrations",
+        "arn:aws:apigateway:REGION::/apis/*/integrations/*",
+        "arn:aws:apigateway:REGION::/apis/*/routes",
+        "arn:aws:apigateway:REGION::/apis/*/routes/*",
+        "arn:aws:apigateway:REGION::/apis/*/stages",
+        "arn:aws:apigateway:REGION::/apis/*/stages/*",
+        "arn:aws:apigateway:REGION::/domainnames",
+        "arn:aws:apigateway:REGION::/domainnames/*",
+        "arn:aws:apigateway:REGION::/domainnames/*/apimappings",
+        "arn:aws:apigateway:REGION::/domainnames/*/apimappings/*",
+        "arn:aws:apigateway:REGION::/tags/*"
+      ]
+    },
+    {
+      "Sid": "ReadAcmCertificateForCustomDomain",
+      "Effect": "Allow",
+      "Action": [
+        "acm:DescribeCertificate",
+        "acm:ListCertificates"
+      ],
+      "Resource": "*"
+    }
+  ]
+}

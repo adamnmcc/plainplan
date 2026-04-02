@@ -1,0 +1,111 @@
+name: 'PlanPlain - Terraform Plan Review'
+description: 'Analyze Terraform plans with AI and post PR-ready summaries as PR comments'
+author: 'Polsia'
+
+branding:
+  icon: 'file-text'
+  color: 'green'
+
+inputs:
+  plan_file:
+    description: 'Path to Terraform plan JSON file (generated via: terraform show -json tfplan > plan.json)'
+    required: false
+    default: 'plan.json'
+
+  api_key:
+    description: 'PlanPlain API key. Get one at https://planplain.polsia.app'
+    required: true
+
+  api_url:
+    description: 'PlanPlain API endpoint URL. Defaults to production.'
+    required: false
+    default: 'https://planplain.polsia.app/api/analyze'
+
+  github_token:
+    description: 'GitHub token for posting PR comments.'
+    required: false
+    default: ${{ github.token }}
+
+  post_comment:
+    description: 'Whether to post analysis as a PR comment.'
+    required: false
+    default: 'true'
+
+outputs:
+  summary:
+    description: 'Plain-English summary of the Terraform plan'
+    value: ${{ steps.analyze.outputs.summary }}
+
+  risk_level:
+    description: 'Highest risk level detected: HIGH, MEDIUM, LOW, or NONE'
+    value: ${{ steps.analyze.outputs.risk_level }}
+
+  pr_markdown:
+    description: 'Full PR-ready markdown comment content'
+    value: ${{ steps.analyze.outputs.pr_markdown }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Validate plan file
+      shell: bash
+      run: |
+        if [ ! -f "${{ inputs.plan_file }}" ]; then
+          echo "::error::Plan file not found: ${{ inputs.plan_file }}"
+          exit 1
+        fi
+        if ! jq empty "${{ inputs.plan_file }}" 2>/dev/null; then
+          echo "::error::Plan file is not valid JSON: ${{ inputs.plan_file }}"
+          exit 1
+        fi
+        RESOURCE_COUNT=$(jq '.resource_changes | length' "${{ inputs.plan_file }}" 2>/dev/null || echo 0)
+        echo "✅ Plan file valid — $RESOURCE_COUNT resource changes found"
+
+    - name: Analyze Terraform plan
+      id: analyze
+      shell: bash
+      run: |
+        echo "🔍 Sending plan to PlanPlain..."
+        HTTP_RESPONSE=$(curl -s -w "\n%{http_code}" \
+          --max-time 60 \
+          --connect-timeout 15 \
+          -X POST "${{ inputs.api_url }}" \
+          -H "Authorization: Bearer ${{ inputs.api_key }}" \
+          -H "Content-Type: application/json" \
+          -d @"${{ inputs.plan_file }}" 2>&1) || {
+            echo "::error::curl failed — API unreachable or timed out after 60s"
+            exit 1
+          }
+        HTTP_BODY=$(echo "$HTTP_RESPONSE" | head -n -1)
+        HTTP_STATUS=$(echo "$HTTP_RESPONSE" | tail -n 1)
+        if [ "$HTTP_STATUS" != "200" ]; then
+          echo "::error::PlanPlain API returned HTTP $HTTP_STATUS"
+          exit 1
+        fi
+        PR_MARKDOWN=$(echo "$HTTP_BODY" | jq -r '.analysis.pr_markdown // empty')
+        SUMMARY=$(echo "$HTTP_BODY" | jq -r '.analysis.summary // empty')
+        RISK_LEVEL=$(echo "$HTTP_BODY" | jq -r '.analysis.risk_flags[0].level // "NONE"' 2>/dev/null || echo "NONE")
+        echo "$PR_MARKDOWN" > /tmp/planplain-comment.md
+        echo "summary<<EOF" >> $GITHUB_OUTPUT
+        echo "$SUMMARY" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+        echo "risk_level=$RISK_LEVEL" >> $GITHUB_OUTPUT
+        echo "pr_markdown<<EOF" >> $GITHUB_OUTPUT
+        echo "$PR_MARKDOWN" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+        echo "✅ Analysis complete — risk level: $RISK_LEVEL"
+
+    - name: Post PR comment
+      shell: bash
+      if: inputs.post_comment == 'true'
+      env:
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+      run: |
+        if [ -z "${{ github.event.pull_request.number }}" ]; then
+          echo "::notice::Not running in a PR context — skipping comment."
+          cat /tmp/planplain-comment.md
+          exit 0
+        fi
+        gh pr comment "${{ github.event.pull_request.number }}" \
+          --body "$(cat /tmp/planplain-comment.md)"
+        echo "✅ Analysis posted as PR comment"
