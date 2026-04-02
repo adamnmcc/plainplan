@@ -64,6 +64,8 @@ fi
 SECRETS_KEYS=(
   OPENROUTER_API_KEY
   OPENROUTER_BASE_URL
+  OPENAI_API_KEY
+  OPENAI_BASE_URL
   STATS_SECRET
   DATABASE_URL
   ACM_CERTIFICATE_ARN
@@ -138,6 +140,15 @@ for key in "${PARAM_KEYS[@]}"; do
   fi
   MISSING+=("$key")
 done
+
+# Backward-compatibility: map legacy OpenAI keys to OpenRouter keys when needed.
+if [[ -z "${VALUES[OPENROUTER_API_KEY]+x}" && -n "${VALUES[OPENAI_API_KEY]+x}" ]]; then
+  VALUES[OPENROUTER_API_KEY]="${VALUES[OPENAI_API_KEY]}"
+fi
+
+if [[ -z "${VALUES[OPENROUTER_BASE_URL]+x}" && -n "${VALUES[OPENAI_BASE_URL]+x}" ]]; then
+  VALUES[OPENROUTER_BASE_URL]="${VALUES[OPENAI_BASE_URL]}"
+fi
 
 mkdir -p "$(dirname "$ENV_FILE")"
 

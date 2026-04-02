@@ -59,6 +59,15 @@ jobs:
           # shellcheck disable=SC1091
           set -a
           source .env
+
+          if [[ -z "${OPENROUTER_API_KEY:-}" && -n "${OPENAI_API_KEY:-}" ]]; then
+            OPENROUTER_API_KEY="$OPENAI_API_KEY"
+          fi
+
+          if [[ -z "${OPENROUTER_BASE_URL:-}" && -n "${OPENAI_BASE_URL:-}" ]]; then
+            OPENROUTER_BASE_URL="$OPENAI_BASE_URL"
+          fi
+
           set +a
 
           {
