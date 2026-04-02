@@ -80,14 +80,16 @@ jobs:
           fi
 
           if [[ -z "${OPENROUTER_API_KEY:-}" ]]; then
-            echo "OPENROUTER_API_KEY is required. Provide it in AWS config or GitHub secrets OPENROUTER_API_KEY/OPENAI_API_KEY."
-            exit 1
+            echo "::warning::OPENROUTER_API_KEY is empty. Lambda will deploy but AI analysis will fail until the secret is populated."
           fi
 
           set +a
 
           {
             echo "AWS_REGION=${{ secrets.AWS_REGION }}"
+            echo "OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}"
+            echo "OPENROUTER_BASE_URL=${OPENROUTER_BASE_URL:-https://openrouter.ai/api/v1}"
+            echo "STATS_SECRET=${STATS_SECRET:-}"
             echo "PROJECT_NAME=${PROJECT_NAME:-plainplan}"
             echo "ENVIRONMENT=${ENVIRONMENT:-dev}"
             echo "ENABLE_AURORA_SERVERLESS=${ENABLE_AURORA_SERVERLESS:-true}"
