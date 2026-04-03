@@ -32,3 +32,19 @@ output "aurora_endpoint" {
   description = "Aurora writer endpoint"
   value       = local.aurora_enabled ? aws_rds_cluster.aurora[0].endpoint : ""
 }
+
+output "rds_endpoint" {
+  description = "RDS PostgreSQL endpoint (host:port)"
+  value       = local.rds_enabled ? aws_db_instance.postgres[0].endpoint : ""
+}
+
+output "rds_database_name" {
+  description = "RDS database name"
+  value       = local.rds_enabled ? var.rds_database_name : ""
+}
+
+output "rds_database_url" {
+  description = "Full DATABASE_URL for direct psycopg connections"
+  value       = local.rds_database_url
+  sensitive   = true
+}

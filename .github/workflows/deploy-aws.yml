@@ -63,19 +63,29 @@ jobs:
         working-directory: terraform
         run: terraform apply -auto-approve tfplan
 
-      - name: Bootstrap Aurora schema
+      - name: Bootstrap database schema
         working-directory: terraform
         run: |
-          ENABLE_AURORA=$(terraform output -raw enable_aurora_serverless 2>/dev/null || echo "false")
-          if [[ "$ENABLE_AURORA" == "true" ]]; then
+          CLUSTER_ARN="$(terraform output -raw aurora_cluster_arn 2>/dev/null || true)"
+          if [[ -n "$CLUSTER_ARN" ]]; then
+            echo "Bootstrapping via Aurora Data API"
             python3 ../scripts/bootstrap_aurora_data_api.py \
-              --cluster-arn "$(terraform output -raw aurora_cluster_arn)" \
+              --cluster-arn "$CLUSTER_ARN" \
               --secret-arn "$(terraform output -raw aurora_secret_arn)" \
               --database "$(terraform output -raw aurora_database_name)" \
               --schema-file ../schema/schema.sql \
               --region "${{ secrets.AWS_REGION }}"
           else
-            echo "Aurora not enabled, skipping schema bootstrap"
+            DB_URL="$(terraform output -raw rds_database_url 2>/dev/null || true)"
+            if [[ -n "$DB_URL" ]]; then
+              echo "Bootstrapping via direct PostgreSQL connection"
+              pip install psycopg[binary] > /dev/null 2>&1
+              python3 ../scripts/bootstrap_rds.py \
+                --database-url "$DB_URL" \
+                --schema-file ../schema/schema.sql
+            else
+              echo "No database configured, skipping schema bootstrap"
+            fi
           fi
 
       - name: Post-deploy smoke tests

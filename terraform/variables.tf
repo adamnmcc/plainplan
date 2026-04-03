@@ -77,6 +77,26 @@ variable "aurora_max_capacity" {
   default     = 1
 }
 
+# ---- RDS free-tier Postgres (when enable_aurora_serverless = false) ----
+
+variable "rds_database_name" {
+  description = "Database name for the RDS PostgreSQL instance"
+  type        = string
+  default     = "plainplan"
+}
+
+variable "rds_master_username" {
+  description = "Master username for the RDS PostgreSQL instance"
+  type        = string
+  default     = "plainplan_admin"
+}
+
+variable "rds_engine_version" {
+  description = "PostgreSQL engine version for RDS"
+  type        = string
+  default     = "16.4"
+}
+
 # openrouter_api_key, openrouter_base_url, stats_secret are read
 # directly from Secrets Manager by Terraform (see config_secrets.tf).
 
