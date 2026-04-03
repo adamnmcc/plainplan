@@ -94,7 +94,7 @@ variable "rds_master_username" {
 variable "rds_engine_version" {
   description = "PostgreSQL engine version for RDS"
   type        = string
-  default     = "16.4"
+  default     = "18.3"
 }
 
 # openrouter_api_key, openrouter_base_url, stats_secret are read
