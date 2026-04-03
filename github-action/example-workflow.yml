@@ -36,7 +36,7 @@ jobs:
         run: terraform show -json tfplan > plan.json
 
       - name: Analyze with PlanPlain
-        uses: Polsia-Inc/planplain/github-action@main
+        uses: adamnmcc/plainplan/github-action@main
         with:
           plan_file: plan.json
           api_key: ${{ secrets.PLANPLAIN_KEY }}

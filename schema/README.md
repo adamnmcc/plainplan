@@ -8,7 +8,7 @@ Full PostgreSQL schema for PlanPlain: an AI-powered Terraform plan analyzer with
 Migration tracking table. Created automatically on every deploy by `migrate.js`.
 
 ### `users`
-Core user accounts. Subscription fields are synced by Polsia when a user subscribes via Stripe.
+Core user accounts. Subscription fields are synced when a user subscribes via Stripe.
 
 ### `api_keys`
 Bearer token API keys for authenticating `/api/analyze` requests. Raw key is shown to user once at creation (format: `pp_live_xxx`). Only the SHA-256 hash is stored.

@@ -1,6 +1,6 @@
 name: 'PlanPlain - Terraform Plan Review'
 description: 'Analyze Terraform plans with AI and post PR-ready summaries as PR comments'
-author: 'Polsia'
+author: 'adamnmcc'
 
 branding:
   icon: 'file-text'
@@ -13,13 +13,13 @@ inputs:
     default: 'plan.json'
 
   api_key:
-    description: 'PlanPlain API key. Get one at https://planplain.polsia.app'
+    description: 'PlanPlain API key. Get one at https://dev.plainplan.click'
     required: true
 
   api_url:
     description: 'PlanPlain API endpoint URL. Defaults to production.'
     required: false
-    default: 'https://planplain.polsia.app/api/analyze'
+    default: 'https://dev.plainplan.click/api/analyze'
 
   github_token:
     description: 'GitHub token for posting PR comments.'

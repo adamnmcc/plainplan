@@ -173,12 +173,9 @@ app.get('/docs', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  const slug = process.env.POLSIA_ANALYTICS_SLUG || '';
   const htmlPath = path.join(__dirname, 'public', 'index.html');
   if (fs.existsSync(htmlPath)) {
-    let html = fs.readFileSync(htmlPath, 'utf8');
-    html = html.replace('__POLSIA_SLUG__', slug);
-    res.type('html').send(html);
+    res.type('html').sendFile(htmlPath);
   } else {
     res.json({ message: 'PlanPlain API' });
   }

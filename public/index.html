@@ -8,15 +8,15 @@
     <title>PlanPlain — Terraform Plans in Plain English</title>
     <meta name="description" content="API that converts Terraform/OpenTofu plan JSON into plain-English summaries, risk flags, and PR-ready markdown. One API call. Any CI pipeline.">
     <meta name="keywords" content="terraform, opentofu, terraform plan, plan analysis, devops, infrastructure review, AI, IaC, CI pipeline, risk flags, PR comment, infrastructure as code">
-    <link rel="canonical" href="https://planplain.polsia.app/">
+    <link rel="canonical" href="https://dev.plainplan.click/">
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="PlanPlain">
-    <meta property="og:url" content="https://planplain.polsia.app/">
+    <meta property="og:url" content="https://dev.plainplan.click/">
     <meta property="og:title" content="PlanPlain — Terraform Plans in Plain English">
     <meta property="og:description" content="API that converts Terraform/OpenTofu plan JSON into plain-English summaries, risk flags, and PR-ready markdown. One API call. Any CI pipeline.">
-    <meta property="og:image" content="https://planplain.polsia.app/og-image.svg">
+    <meta property="og:image" content="https://dev.plainplan.click/og-image.svg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="PlanPlain — Terraform Plans in Plain English">
@@ -25,7 +25,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="PlanPlain — Terraform Plans in Plain English">
     <meta name="twitter:description" content="API that converts Terraform/OpenTofu plan JSON into plain-English summaries, risk flags, and PR-ready markdown. One API call. Any CI pipeline.">
-    <meta name="twitter:image" content="https://planplain.polsia.app/og-image.svg">
+    <meta name="twitter:image" content="https://dev.plainplan.click/og-image.svg">
 
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">
@@ -33,7 +33,7 @@
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
       "name": "PlanPlain",
-      "url": "https://planplain.polsia.app",
+      "url": "https://dev.plainplan.click",
       "applicationCategory": "DeveloperApplication",
       "operatingSystem": "Any",
       "description": "API that converts Terraform/OpenTofu plan JSON into plain-English summaries, risk flags, reviewer checklists, and PR-ready markdown.",
@@ -1386,7 +1386,7 @@
                     <div class="step-num">2</div>
                     <h3>Analyze</h3>
                     <p>POST the JSON to PlanPlain. Get structured analysis in milliseconds.</p>
-                    <code>curl planplain.polsia.app/api/analyze \<br>&nbsp; -H "Authorization: Bearer $KEY" \<br>&nbsp; -d @plan.json</code>
+                    <code>curl dev.plainplan.click/api/analyze \<br>&nbsp; -H "Authorization: Bearer $KEY" \<br>&nbsp; -d @plan.json</code>
                 </div>
                 <div class="pipe-arrow">&#8594;</div>
                 <div class="pipe-step">
@@ -1464,12 +1464,12 @@
 
                 <!-- GitHub Action tab -->
                 <div id="tab-action" class="tab-pane active">
-                    <div class="action-badge">&#9889; uses: Polsia-Inc/planplain/github-action@main</div>
+                    <div class="action-badge">&#9889; uses: adamnmcc/plainplan/github-action@main</div>
 
                     <ul class="setup-steps">
-                        <li>Get your API key at <a href="https://planplain.polsia.app" target="_blank">planplain.polsia.app</a></li>
+                        <li>Get your API key at <a href="https://dev.plainplan.click" target="_blank">dev.plainplan.click</a></li>
                         <li>Add it as a repository secret named <code style="font-family:'JetBrains Mono',monospace;color:var(--accent)">PLANPLAIN_KEY</code> (Settings → Secrets and variables → Actions)</li>
-                        <li>Add the step below to your workflow — or copy <a href="https://github.com/Polsia-Inc/planplain/blob/main/github-action/example-workflow.yml" target="_blank">the full example workflow</a></li>
+                        <li>Add the step below to your workflow — or copy <a href="https://github.com/adamnmcc/plainplan/blob/main/github-action/example-workflow.yml" target="_blank">the full example workflow</a></li>
                     </ul>
 
                     <div class="api-snippet">
@@ -1490,7 +1490,7 @@
       - <span class="cmd-keyword">run:</span> <span class="cmd-value">terraform show -json tfplan > plan.json</span>
 
       - <span class="cmd-keyword">name:</span> <span class="cmd-value">Analyze with PlanPlain</span>
-        <span class="cmd-accent">uses: Polsia-Inc/planplain/github-action@main</span>
+        <span class="cmd-accent">uses: adamnmcc/plainplan/github-action@main</span>
         <span class="cmd-keyword">with:</span>
           <span class="cmd-key">plan_file:</span> <span class="cmd-value">plan.json</span>
           <span class="cmd-accent">api_key: ${{ secrets.PLANPLAIN_KEY }}</span>
@@ -1501,10 +1501,10 @@
                 <!-- Direct API tab -->
                 <div id="tab-curl" class="tab-pane">
                     <div class="api-snippet">
-<span class="cmd-comment"># Generate a key at https://planplain.polsia.app, then:</span>
+<span class="cmd-comment"># Generate a key at https://dev.plainplan.click, then:</span>
 <span class="cmd-keyword">terraform</span> show -json tfplan > plan.json
 
-<span class="cmd-accent">RESULT=$(curl -s -X POST https://planplain.polsia.app/api/analyze \</span>
+<span class="cmd-accent">RESULT=$(curl -s -X POST https://dev.plainplan.click/api/analyze \</span>
 <span class="cmd-accent">  -H "Authorization: Bearer $PP_KEY" \</span>
 <span class="cmd-accent">  -H "Content-Type: application/json" \</span>
 <span class="cmd-accent">  -d @plan.json)</span>
@@ -1526,9 +1526,6 @@ gh pr comment $PR_NUMBER --body "$MARKDOWN"
 
         <footer>
             <div class="foot-left">PlanPlain &mdash; Terraform plans, in plain English</div>
-            <div class="foot-right">
-                Built by <a href="https://polsia.com">Polsia</a>
-            </div>
         </footer>
 
     </div>
@@ -2068,21 +2065,5 @@ gh pr comment $PR_NUMBER --body "$MARKDOWN"
     }
     </script>
 
-    <!-- Polsia Analytics -->
-    <script>
-    (function() {
-        var slug = 'planplain';
-        if (!slug) return;
-        var vid = localStorage.getItem('polsia_vid');
-        if (!vid) {
-            vid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                var r = Math.random() * 16 | 0;
-                return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-            });
-            localStorage.setItem('polsia_vid', vid);
-        }
-        new Image().src = 'https://polsia.com/api/beacon/pixel?s=' + encodeURIComponent(slug) + '&v=' + encodeURIComponent(vid);
-    })();
-    </script>
 </body>
 </html>

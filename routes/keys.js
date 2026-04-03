@@ -32,7 +32,7 @@ function createKeysRouter(pool) {
       const { key, keyHash, keyPrefix } = generateApiKey();
       const keyName = (name || 'default').slice(0, 255);
       await pool.query('INSERT INTO api_keys (key_hash, key_prefix, user_id, email, name) VALUES ($1, $2, $3, $4, $5)', [keyHash, keyPrefix, userId, email.toLowerCase(), keyName]);
-      res.status(201).json({ success: true, api_key: key, key_prefix: keyPrefix, message: 'Store this key securely — it cannot be retrieved later.', dashboard_url: `https://planplain.polsia.app/dashboard?key=${key}` });
+      res.status(201).json({ success: true, api_key: key, key_prefix: keyPrefix, message: 'Store this key securely — it cannot be retrieved later.', dashboard_url: `https://dev.plainplan.click/dashboard?key=${key}` });
     } catch (err) {
       console.error('Key generation error:', err.message);
       res.status(500).json({ success: false, error: 'KEY_GENERATION_FAILED', message: 'Failed to generate API key' });

@@ -13,7 +13,6 @@ class Settings:
     openrouter_api_key: str
     openrouter_base_url: str
     stats_secret: str
-    polsia_analytics_slug: str
 
 
 def get_settings() -> Settings:
@@ -43,5 +42,4 @@ def get_settings() -> Settings:
         openrouter_api_key=os.getenv("OPENROUTER_API_KEY", os.getenv("OPENAI_API_KEY", "")),
         openrouter_base_url=os.getenv("OPENROUTER_BASE_URL", os.getenv("OPENAI_BASE_URL", "https://openrouter.ai/api/v1")),
         stats_secret=os.getenv("STATS_SECRET", ""),
-        polsia_analytics_slug=os.getenv("POLSIA_ANALYTICS_SLUG", ""),
     )
