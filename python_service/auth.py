@@ -60,7 +60,7 @@ def authenticate_api_key(authorization: str | None = Header(default=None)) -> di
             detail={
                 "success": False,
                 "error": "INVALID_API_KEY",
-                "message": "API key not found. Generate one at https://dev.plainplan.click/api/keys",
+                "message": "API key not found. Generate one at https://dev.api.plainplan.click/api/keys",
             },
         )
 

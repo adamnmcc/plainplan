@@ -8,15 +8,15 @@
     <title>API Docs — PlanPlain | Terraform Plan Analysis API</title>
     <meta name="description" content="Complete API reference for PlanPlain. Authenticate with an API key, POST your Terraform plan JSON, and get back plain-English summaries, risk flags, and PR-ready markdown.">
     <meta name="keywords" content="terraform API, opentofu API, plan analysis API, infrastructure review API, devops API, IaC automation">
-    <link rel="canonical" href="https://dev.plainplan.click/docs">
+    <link rel="canonical" href="https://dev.api.plainplan.click/docs">
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="PlanPlain">
-    <meta property="og:url" content="https://dev.plainplan.click/docs">
+    <meta property="og:url" content="https://dev.api.plainplan.click/docs">
     <meta property="og:title" content="API Docs — PlanPlain | Terraform Plan Analysis API">
     <meta property="og:description" content="Complete API reference for PlanPlain. POST your Terraform plan JSON, get plain-English summaries, risk flags, and PR-ready markdown.">
-    <meta property="og:image" content="https://dev.plainplan.click/og-image.svg">
+    <meta property="og:image" content="https://dev.api.plainplan.click/og-image.svg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="PlanPlain API Documentation">
@@ -25,7 +25,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="API Docs — PlanPlain | Terraform Plan Analysis API">
     <meta name="twitter:description" content="Complete API reference for PlanPlain. POST your Terraform plan JSON, get plain-English summaries, risk flags, and PR-ready markdown.">
-    <meta name="twitter:image" content="https://dev.plainplan.click/og-image.svg">
+    <meta name="twitter:image" content="https://dev.api.plainplan.click/og-image.svg">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -611,7 +611,7 @@
     <div class="header-right">
         <a href="/" class="btn-sm btn-ghost">← Back to home</a>
         <a href="/dashboard" class="btn-sm btn-ghost">Dashboard</a>
-        <a href="https://dev.plainplan.click/api/keys" class="btn-sm btn-primary" onclick="event.preventDefault(); window.location='/'; setTimeout(()=>document.querySelector('#playground')?.scrollIntoView({behavior:'smooth'}),100)">Get API Key</a>
+        <a href="https://dev.api.plainplan.click/api/keys" class="btn-sm btn-primary" onclick="event.preventDefault(); window.location='/'; setTimeout(()=>document.querySelector('#playground')?.scrollIntoView({behavior:'smooth'}),100)">Get API Key</a>
     </div>
 </header>
 
@@ -653,7 +653,7 @@
             <span class="section-badge">Documentation</span>
             <h1>PlanPlain API Reference</h1>
             <p>PlanPlain accepts Terraform plan JSON and returns a plain-English summary, risk flags, reviewer checklist, and PR-ready markdown — in one API call.</p>
-            <p>Base URL: <code class="mono" style="color: var(--accent); background: var(--accent-bg); padding: 2px 8px; border-radius: 4px;">https://dev.plainplan.click</code></p>
+            <p>Base URL: <code class="mono" style="color: var(--accent); background: var(--accent-bg); padding: 2px 8px; border-radius: 4px;">https://dev.api.plainplan.click</code></p>
         </div>
 
         <!-- Quick Start -->
@@ -672,7 +672,7 @@
                                 <span class="code-lang">bash</span>
                                 <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                             </div>
-                            <pre><code>curl -X POST https://dev.plainplan.click/api/keys \
+                            <pre><code>curl -X POST https://dev.api.plainplan.click/api/keys \
   -H <span class="str">"Content-Type: application/json"</span> \
   -d <span class="str">'{"email": "you@yourcompany.com"}'</span></code></pre>
                         </div>
@@ -712,7 +712,7 @@ terraform show -json tfplan > plan.json</code></pre>
                                 <span class="code-lang">bash</span>
                                 <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                             </div>
-                            <pre><code>curl -X POST https://dev.plainplan.click/api/analyze \
+                            <pre><code>curl -X POST https://dev.api.plainplan.click/api/analyze \
   -H <span class="str">"Authorization: Bearer pp_live_a1b2c3d4e5f6..."</span> \
   -H <span class="str">"Content-Type: application/json"</span> \
   -d @plan.json</code></pre>
@@ -1026,8 +1026,8 @@ Retry-After: 42   <span class="cmt"># only present when 429</span></code></pre>
                     <span class="code-lang">bash</span>
                     <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                 </div>
-                <pre><code>curl https://dev.plainplan.click/api/example | \
-  curl -X POST https://dev.plainplan.click/api/analyze \
+                <pre><code>curl https://dev.api.plainplan.click/api/example | \
+  curl -X POST https://dev.api.plainplan.click/api/analyze \
     -H <span class="str">"Authorization: Bearer pp_live_..."</span> \
     -H <span class="str">"Content-Type: application/json"</span> \
     -d @-</code></pre>
@@ -1066,7 +1066,7 @@ terraform plan -out=tfplan
 terraform show -json tfplan > <span class="str">"$PLAN_FILE"</span>
 
 <span class="cmt"># Send to PlanPlain</span>
-RESPONSE=$(curl -s -X POST https://dev.plainplan.click/api/analyze \
+RESPONSE=$(curl -s -X POST https://dev.api.plainplan.click/api/analyze \
   -H <span class="str">"Authorization: Bearer $API_KEY"</span> \
   -H <span class="str">"Content-Type: application/json"</span> \
   -d @<span class="str">"$PLAN_FILE"</span>)
@@ -1096,7 +1096,7 @@ RESPONSE=$(curl -s -X POST https://dev.plainplan.click/api/analyze \
 <span class="kw">async function</span> <span class="fn">analyzePlan</span>(planFilePath) {
   <span class="kw">const</span> <span class="var">planJson</span> = <span class="var">JSON</span>.<span class="fn">parse</span>(<span class="var">fs</span>.<span class="fn">readFileSync</span>(planFilePath, <span class="str">'utf8'</span>));
 
-  <span class="kw">const</span> <span class="var">response</span> = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'https://dev.plainplan.click/api/analyze'</span>, {
+  <span class="kw">const</span> <span class="var">response</span> = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'https://dev.api.plainplan.click/api/analyze'</span>, {
     method: <span class="str">'POST'</span>,
     headers: {
       <span class="str">'Authorization'</span>: <span class="str">`Bearer ${process.env.PLANPLAIN_API_KEY}`</span>,
@@ -1156,7 +1156,7 @@ RESPONSE=$(curl -s -X POST https://dev.plainplan.click/api/analyze \
 }
 
 <span class="kw">async function</span> <span class="fn">analyzePlan</span>(planJson: object): <span class="fn">Promise</span>&lt;<span class="fn">PlanPlainResponse</span>&gt; {
-  <span class="kw">const</span> res = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'https://dev.plainplan.click/api/analyze'</span>, {
+  <span class="kw">const</span> res = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'https://dev.api.plainplan.click/api/analyze'</span>, {
     method: <span class="str">'POST'</span>,
     headers: {
       <span class="str">'Authorization'</span>: <span class="str">`Bearer ${process.env.PLANPLAIN_API_KEY}`</span>,
@@ -1189,7 +1189,7 @@ RESPONSE=$(curl -s -X POST https://dev.plainplan.click/api/analyze \
         plan_json = json.<span class="fn">load</span>(f)
 
     api_key = os.environ[<span class="str">"PLANPLAIN_API_KEY"</span>]
-    url = <span class="str">"https://dev.plainplan.click/api/analyze"</span>
+    url = <span class="str">"https://dev.api.plainplan.click/api/analyze"</span>
 
     req = urllib.request.<span class="fn">Request</span>(
         url,
@@ -1233,7 +1233,7 @@ analysis = result[<span class="str">"analysis"</span>]
     plan = json.<span class="fn">load</span>(f)
 
 response = requests.<span class="fn">post</span>(
-    <span class="str">"https://dev.plainplan.click/api/analyze"</span>,
+    <span class="str">"https://dev.api.plainplan.click/api/analyze"</span>,
     headers={<span class="str">"Authorization"</span>: <span class="str">f"Bearer {os.environ['PLANPLAIN_API_KEY']}"</span>},
     json=plan,
     timeout=<span class="num">60</span>,
@@ -1364,7 +1364,7 @@ data = response.<span class="fn">json</span>()
                 <span>API v1.0</span>
             </div>
             <div style="font-size: 13px; color: var(--text-muted);">
-                Questions? <a href="mailto:hello@dev.plainplan.click">hello@dev.plainplan.click</a>
+                Questions? <a href="mailto:hello@plainplan.click">hello@plainplan.click</a>
             </div>
         </div>
 
