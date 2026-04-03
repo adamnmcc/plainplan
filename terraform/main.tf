@@ -7,6 +7,7 @@ locals {
     ManagedBy   = "terraform"
   }
 
-  custom_domain_enabled = var.custom_domain_name != "" && var.route53_zone_name != ""
-  aurora_enabled        = var.enable_aurora_serverless
+  custom_domain_enabled  = var.custom_domain_name != "" && var.route53_zone_name != ""
+  website_domain_enabled = var.website_domain_name != "" && local.custom_domain_enabled
+  aurora_enabled         = var.enable_aurora_serverless
 }

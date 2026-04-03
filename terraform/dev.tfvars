@@ -10,4 +10,5 @@ rds_engine_version      = "18.3"
 
 # Custom domain — Terraform creates ACM cert, validates via Route53, and points DNS automatically
 custom_domain_name  = "dev.api.plainplan.click"
+website_domain_name = "dev.plainplan.click"
 route53_zone_name   = "plainplan.click"

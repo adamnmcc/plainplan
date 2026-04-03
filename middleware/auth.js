@@ -66,7 +66,7 @@ function authenticateApiKey(pool) {
         return res.status(401).json({
           success: false,
           error: 'INVALID_API_KEY',
-          message: 'API key not found. Generate one at https://dev.api.plainplan.click/api/keys',
+          message: 'API key not found. Generate one at https://dev.plainplan.click',
         });
       }
 

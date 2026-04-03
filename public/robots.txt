@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://dev.api.plainplan.click/sitemap.xml
+Sitemap: https://dev.plainplan.click/sitemap.xml

@@ -13,7 +13,7 @@ inputs:
     default: 'plan.json'
 
   api_key:
-    description: 'PlanPlain API key. Get one at https://dev.api.plainplan.click'
+    description: 'PlanPlain API key. Get one at https://dev.plainplan.click'
     required: true
 
   api_url:

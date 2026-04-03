@@ -106,6 +106,12 @@ variable "custom_domain_name" {
   default     = ""
 }
 
+variable "website_domain_name" {
+  description = "Optional custom website domain (example: dev.plainplan.click). Served by the same Lambda but gives a clean URL for the website."
+  type        = string
+  default     = ""
+}
+
 variable "route53_zone_name" {
   description = "Route53 hosted zone name (example: plainplan.click). When set with custom_domain_name, Terraform creates and validates the ACM certificate and DNS records automatically."
   type        = string
