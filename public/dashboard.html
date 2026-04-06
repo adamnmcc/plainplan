@@ -164,6 +164,8 @@
   </div>
 </div>
 <script>
+  const API_ORIGIN = '__API_ORIGIN__';
+
   function formatDate(iso) { if (!iso) return 'Never'; const d = new Date(iso); return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
   function formatTime(iso) { if (!iso) return '—'; const d = new Date(iso); const now = new Date(); const diffMs = now - d; const diffMin = Math.floor(diffMs/60000); const diffHr = Math.floor(diffMs/3600000); const diffDay = Math.floor(diffMs/86400000); if (diffMin < 2) return 'just now'; if (diffMin < 60) return `${diffMin}m ago`; if (diffHr < 24) return `${diffHr}h ago`; if (diffDay < 7) return `${diffDay}d ago`; return formatDate(iso); }
   function el(id) { return document.getElementById(id); }
@@ -205,7 +207,7 @@
     if (!key.startsWith('pp_live_')) { hide('state-loading'); el('error-msg').textContent = 'Invalid API key format.'; show('state-error'); return; }
     _rawKey = key;
     try {
-      const resp = await fetch('/api/dashboard?key=' + encodeURIComponent(key));
+      const resp = await fetch(`${API_ORIGIN}/api/dashboard?key=` + encodeURIComponent(key));
       const data = await resp.json();
       if (!resp.ok || !data.success) { hide('state-loading'); el('error-msg').textContent = data.message || 'API key not found.'; show('state-error'); return; }
       renderDashboard(data); hide('state-loading'); el('dashboard').style.display = '';

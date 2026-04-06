@@ -2,11 +2,15 @@ resource "aws_apigatewayv2_api" "http" {
   name          = "${local.name_prefix}-http-api"
   protocol_type = "HTTP"
 
-  cors_configuration {
-    allow_headers = ["authorization", "content-type"]
-    allow_methods = ["GET", "POST", "OPTIONS"]
-    allow_origins = ["*"]
-    max_age       = 3600
+  dynamic "cors_configuration" {
+    for_each = length(local.cors_allow_origins) > 0 ? [1] : []
+
+    content {
+      allow_headers = ["authorization", "content-type"]
+      allow_methods = ["GET", "POST", "OPTIONS"]
+      allow_origins = local.cors_allow_origins
+      max_age       = 3600
+    }
   }
 
   tags = local.common_tags

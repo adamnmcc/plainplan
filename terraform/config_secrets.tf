@@ -95,6 +95,13 @@ resource "aws_ssm_parameter" "project_name" {
   tags  = local.common_tags
 }
 
+resource "aws_ssm_parameter" "root_domain_name" {
+  name  = "/${var.config_prefix}/ROOT_DOMAIN_NAME"
+  type  = "String"
+  value = var.root_domain_name
+  tags  = local.common_tags
+}
+
 resource "aws_ssm_parameter" "enable_aurora_serverless" {
   name  = "/${var.config_prefix}/ENABLE_AURORA_SERVERLESS"
   type  = "String"

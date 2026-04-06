@@ -8,15 +8,15 @@
     <title>PlanPlain — Terraform Plans in Plain English</title>
     <meta name="description" content="API that converts Terraform/OpenTofu plan JSON into plain-English summaries, risk flags, and PR-ready markdown. One API call. Any CI pipeline.">
     <meta name="keywords" content="terraform, opentofu, terraform plan, plan analysis, devops, infrastructure review, AI, IaC, CI pipeline, risk flags, PR comment, infrastructure as code">
-    <link rel="canonical" href="https://dev.plainplan.click/">
+    <link rel="canonical" href="__WEBSITE_ORIGIN__/">
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="PlanPlain">
-    <meta property="og:url" content="https://dev.plainplan.click/">
+    <meta property="og:url" content="__WEBSITE_ORIGIN__/">
     <meta property="og:title" content="PlanPlain — Terraform Plans in Plain English">
     <meta property="og:description" content="API that converts Terraform/OpenTofu plan JSON into plain-English summaries, risk flags, and PR-ready markdown. One API call. Any CI pipeline.">
-    <meta property="og:image" content="https://dev.plainplan.click/og-image.svg">
+    <meta property="og:image" content="__WEBSITE_ORIGIN__/og-image.svg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="PlanPlain — Terraform Plans in Plain English">
@@ -25,7 +25,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="PlanPlain — Terraform Plans in Plain English">
     <meta name="twitter:description" content="API that converts Terraform/OpenTofu plan JSON into plain-English summaries, risk flags, and PR-ready markdown. One API call. Any CI pipeline.">
-    <meta name="twitter:image" content="https://dev.plainplan.click/og-image.svg">
+    <meta name="twitter:image" content="__WEBSITE_ORIGIN__/og-image.svg">
 
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">
@@ -33,7 +33,7 @@
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
       "name": "PlanPlain",
-      "url": "https://dev.plainplan.click",
+      "url": "__WEBSITE_ORIGIN__",
       "applicationCategory": "DeveloperApplication",
       "operatingSystem": "Any",
       "description": "API that converts Terraform/OpenTofu plan JSON into plain-English summaries, risk flags, reviewer checklists, and PR-ready markdown.",
@@ -1386,7 +1386,7 @@
                     <div class="step-num">2</div>
                     <h3>Analyze</h3>
                     <p>POST the JSON to PlanPlain. Get structured analysis in milliseconds.</p>
-                    <code>curl dev.api.plainplan.click/api/analyze \<br>&nbsp; -H "Authorization: Bearer $KEY" \<br>&nbsp; -d @plan.json</code>
+                    <code>curl __API_ORIGIN__/api/analyze \<br>&nbsp; -H "Authorization: Bearer $KEY" \<br>&nbsp; -d @plan.json</code>
                 </div>
                 <div class="pipe-arrow">&#8594;</div>
                 <div class="pipe-step">
@@ -1467,7 +1467,7 @@
                     <div class="action-badge">&#9889; uses: adamnmcc/plainplan/github-action@main</div>
 
                     <ul class="setup-steps">
-                        <li>Get your API key at <a href="https://dev.plainplan.click" target="_blank">dev.plainplan.click</a></li>
+                        <li>Get your API key at <a href="__WEBSITE_ORIGIN__" target="_blank">__WEBSITE_ORIGIN__</a></li>
                         <li>Add it as a repository secret named <code style="font-family:'JetBrains Mono',monospace;color:var(--accent)">PLANPLAIN_KEY</code> (Settings → Secrets and variables → Actions)</li>
                         <li>Add the step below to your workflow — or copy <a href="https://github.com/adamnmcc/plainplan/blob/main/github-action/example-workflow.yml" target="_blank">the full example workflow</a></li>
                     </ul>
@@ -1501,10 +1501,10 @@
                 <!-- Direct API tab -->
                 <div id="tab-curl" class="tab-pane">
                     <div class="api-snippet">
-<span class="cmd-comment"># Generate a key at https://dev.plainplan.click, then:</span>
+<span class="cmd-comment"># Generate a key at __WEBSITE_ORIGIN__, then:</span>
 <span class="cmd-keyword">terraform</span> show -json tfplan > plan.json
 
-<span class="cmd-accent">RESULT=$(curl -s -X POST https://dev.api.plainplan.click/api/analyze \</span>
+<span class="cmd-accent">RESULT=$(curl -s -X POST __API_ORIGIN__/api/analyze \</span>
 <span class="cmd-accent">  -H "Authorization: Bearer $PP_KEY" \</span>
 <span class="cmd-accent">  -H "Content-Type: application/json" \</span>
 <span class="cmd-accent">  -d @plan.json)</span>
@@ -1530,7 +1530,9 @@ gh pr comment $PR_NUMBER --body "$MARKDOWN"
 
     </div>
 
-    <script>
+<script>
+    const API_ORIGIN = '__API_ORIGIN__';
+
     // ============================================
     // Integration tab switcher
     // ============================================
@@ -1837,7 +1839,7 @@ gh pr comment $PR_NUMBER --body "$MARKDOWN"
         analyzeBtn.disabled = true;
 
         try {
-            const resp = await fetch('/analyze', {
+            const resp = await fetch(`${API_ORIGIN}/analyze`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(plan)
@@ -2005,7 +2007,7 @@ gh pr comment $PR_NUMBER --body "$MARKDOWN"
         btn.disabled = true;
 
         try {
-            const resp = await fetch('/api/keys', {
+            const resp = await fetch(`${API_ORIGIN}/api/keys`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email })

@@ -2,6 +2,7 @@ project_name      = "plainplan"
 environment       = "dev"
 aws_region        = "us-east-1"
 lambda_zip_path   = "../build/plainplan-lambda.zip"
+root_domain_name  = "plainplan.click"
 
 # Aurora is the default deployment path. Leave database_url empty unless you are intentionally using external Postgres.
 database_url      = ""
@@ -11,11 +12,8 @@ aurora_engine_version    = "16.4"
 aurora_min_capacity      = 0.5
 aurora_max_capacity      = 1
 
-# Aurora Serverless v2 is not scale-to-zero. 0.5 ACU is the lowest idle setting.
-openrouter_api_key    = "sk-or-v1-..."
-openrouter_base_url   = "https://openrouter.ai/api/v1"
-stats_secret      = "replace-with-long-random-value"
-
-# Optional custom domain setup
-custom_domain_name = "api.plainplan.click"
-acm_certificate_arn = "arn:aws:acm:us-east-1:123456789012:certificate/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+# Optional overrides if you need non-standard hostnames or CORS origins.
+custom_domain_name      = ""
+website_domain_name     = ""
+route53_zone_name       = ""
+additional_cors_origins = []

@@ -9,8 +9,18 @@ output "lambda_function_name" {
 }
 
 output "custom_domain_target" {
-  description = "Custom domain URL when enabled"
-  value       = local.custom_domain_enabled ? "https://${var.custom_domain_name}" : null
+  description = "API custom domain URL when enabled"
+  value       = local.api_domain_enabled ? local.api_origin : null
+}
+
+output "api_custom_domain_url" {
+  description = "API custom domain URL when enabled"
+  value       = local.api_domain_enabled ? local.api_origin : null
+}
+
+output "website_url" {
+  description = "Website URL when enabled"
+  value       = local.website_domain_enabled ? local.website_origin : null
 }
 
 output "aurora_cluster_arn" {

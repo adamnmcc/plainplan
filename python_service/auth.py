@@ -6,6 +6,7 @@ from typing import Any
 
 from fastapi import Header, HTTPException
 
+from .config import get_settings
 from .db import execute, fetch_one
 
 
@@ -55,12 +56,14 @@ def authenticate_api_key(authorization: str | None = Header(default=None)) -> di
     )
 
     if not row:
+        settings = get_settings()
+        website_base_url = settings.website_base_url or "https://plainplan.click"
         raise HTTPException(
             status_code=401,
             detail={
                 "success": False,
                 "error": "INVALID_API_KEY",
-                "message": "API key not found. Generate one at https://dev.plainplan.click",
+                "message": f"API key not found. Generate one at {website_base_url}",
             },
         )
 

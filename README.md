@@ -4,6 +4,7 @@ AI-powered Terraform plan analyzer. Send `terraform show -json` output to the AP
 
 ## Architecture
 
+- **Website**: Static site in S3 behind CloudFront
 - **API**: Python 3.11 FastAPI on AWS Lambda (via Mangum)
 - **Gateway**: API Gateway HTTP API
 - **Database**: Aurora Serverless v2 PostgreSQL (RDS Data API)
@@ -11,6 +12,8 @@ AI-powered Terraform plan analyzer. Send `terraform show -json` output to the AP
 - **DNS/TLS**: Route53 + ACM (automated by Terraform)
 - **IaC**: Terraform with S3 backend
 - **CI/CD**: GitHub Actions (deploy on push to main)
+
+Hosting details for the website and API are documented in `docs/infrastructure.md`.
 
 ## API Endpoints
 

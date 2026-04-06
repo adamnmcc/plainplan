@@ -35,7 +35,6 @@ pip3 install --upgrade --target "$PKG_DIR" -r "$ROOT_DIR/requirements-python.txt
 
 echo "[build] Copying application files..."
 cp -r "$ROOT_DIR/python_service" "$PKG_DIR/"
-cp -r "$ROOT_DIR/public" "$PKG_DIR/"
 cp -r "$ROOT_DIR/test-fixtures" "$PKG_DIR/"
 
 pushd "$PKG_DIR" >/dev/null

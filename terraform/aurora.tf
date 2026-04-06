@@ -80,13 +80,13 @@ resource "aws_rds_cluster" "aurora" {
   db_subnet_group_name   = aws_db_subnet_group.aurora[0].name
   vpc_security_group_ids = [aws_security_group.aurora[0].id]
 
-  backup_retention_period         = 1
-  deletion_protection             = false
-  storage_encrypted               = true
-  skip_final_snapshot             = true
-  apply_immediately               = true
-  enable_http_endpoint            = true
-  copy_tags_to_snapshot           = true
+  backup_retention_period             = 1
+  deletion_protection                 = false
+  storage_encrypted                   = true
+  skip_final_snapshot                 = true
+  apply_immediately                   = true
+  enable_http_endpoint                = true
+  copy_tags_to_snapshot               = true
   iam_database_authentication_enabled = false
 
   serverlessv2_scaling_configuration {
@@ -100,11 +100,11 @@ resource "aws_rds_cluster" "aurora" {
 resource "aws_rds_cluster_instance" "aurora_writer" {
   count = local.aurora_enabled ? 1 : 0
 
-  identifier         = "${local.name_prefix}-aurora-1"
-  cluster_identifier = aws_rds_cluster.aurora[0].id
-  instance_class     = "db.serverless"
-  engine             = aws_rds_cluster.aurora[0].engine
-  engine_version     = aws_rds_cluster.aurora[0].engine_version
+  identifier          = "${local.name_prefix}-aurora-1"
+  cluster_identifier  = aws_rds_cluster.aurora[0].id
+  instance_class      = "db.serverless"
+  engine              = aws_rds_cluster.aurora[0].engine
+  engine_version      = aws_rds_cluster.aurora[0].engine_version
   publicly_accessible = false
   apply_immediately   = true
 

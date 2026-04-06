@@ -1,14 +1,17 @@
 # Terraform — PlainPlan AWS Infrastructure
 
-Provisions the PlainPlan backend stack:
+Provisions the PlainPlan application stack:
 
+- S3 bucket for website assets
+- CloudFront distribution for the website
 - AWS Lambda (Python 3.11) for API compute
 - API Gateway HTTP API
 - CloudWatch logs (7-day retention)
 - Aurora Serverless v2 PostgreSQL via the RDS Data API
-- ACM certificate with automated Route53 DNS validation
-- Custom domain mapping (automated via Route53)
-- Secrets Manager for app secrets (OpenRouter API key, stats token)
+- Regional ACM certificate for the API domain
+- `us-east-1` ACM certificate for the CloudFront website domain
+- Route53 records for website and API domains
+- Secrets Manager for app secrets (OpenRouter key, stats token)
 - SSM Parameter Store for non-sensitive config
 
 ## Cost-conscious choices
@@ -28,9 +31,12 @@ Aurora Serverless v2 does not scale to zero. The lowest idle setting is `0.5` AC
 | File | Purpose |
 |------|---------|
 | `dev.tfvars` | Dev environment variables |
+| `prod.tfvars` | Prod environment variables |
 | `dev.backend.hcl` | Dev S3 backend configuration |
+| `prod.backend.hcl` | Prod S3 backend configuration |
 | `config_secrets.tf` | Secrets Manager + SSM resources and seed values |
 | `domain.tf` | ACM cert, Route53 validation, API Gateway custom domain |
+| `website.tf` | S3, CloudFront, website ACM, website DNS, website file upload |
 | `aurora.tf` | Aurora Serverless v2 cluster and security group |
 | `iam-policy-terraform-deploy.json` | Reference IAM policy for the deploy user |
 
@@ -47,6 +53,14 @@ Aurora Serverless v2 does not scale to zero. The lowest idle setting is `0.5` AC
 terraform init -backend-config=dev.backend.hcl
 terraform plan -var-file=dev.tfvars
 terraform apply -var-file=dev.tfvars
+```
+
+For prod:
+
+```bash
+terraform init -backend-config=prod.backend.hcl
+terraform plan -var-file=prod.tfvars
+terraform apply -var-file=prod.tfvars
 ```
 
 ## Secrets management
@@ -67,17 +81,27 @@ aws secretsmanager put-secret-value \
 
 Then re-deploy to update Lambda with the real values. Subsequent deploys won't overwrite your secrets (`lifecycle { ignore_changes }`).
 
-## Custom domain
+## Domain model
 
-Set `custom_domain_name` and `route53_zone_name` in your tfvars. Terraform will:
+Set `root_domain_name = "plainplan.click"` in your tfvars.
 
-1. Create an ACM certificate
-2. Add DNS validation records in Route53
-3. Wait for certificate validation
-4. Create the API Gateway custom domain
-5. Add an alias A record pointing to API Gateway
+Terraform derives the public hostnames from `environment`:
 
-No manual DNS or certificate work needed.
+| Environment | Website | API |
+|---|---|---|
+| `dev` | `dev.plainplan.click` | `dev.api.plainplan.click` |
+| `prod` | `plainplan.click` | `api.plainplan.click` |
+
+Terraform will:
+
+1. Create a regional ACM certificate for the API domain
+2. Create a `us-east-1` ACM certificate for the website domain
+3. Add DNS validation records in Route53
+4. Create the API Gateway custom domain for the API
+5. Create the CloudFront distribution for the website
+6. Add alias A records for both domains
+
+No manual DNS or certificate work should be needed beyond having the hosted zone in Route53.
 
 ## Remote state
 
@@ -94,14 +118,18 @@ use_lockfile = true
 
 Workflow: `.github/workflows/deploy-aws.yml`
 
-Trigger: push to `main` or manual dispatch.
+Trigger:
 
-Required GitHub secrets (in `dev` environment):
+- push to `main` or `master` deploys `dev`
+- manual dispatch can deploy `dev` or `prod`
+
+Required GitHub secrets per environment:
+
 - `AWS_ACCESS_KEY_ID`
 - `AWS_SECRET_ACCESS_KEY`
 - `AWS_REGION`
 
-The workflow runs `terraform init -backend-config=dev.backend.hcl`, plans, applies, bootstraps Aurora schema, and runs post-deploy smoke tests.
+The workflow selects `<env>.backend.hcl` and `<env>.tfvars`, builds the Lambda artifact, applies Terraform, bootstraps the database, and runs API smoke tests.
 
 ## Adding a new environment
 

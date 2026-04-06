@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class Settings:
+    api_base_url: str
     db_backend: str
     database_url: str
     aws_region: str
@@ -13,6 +14,7 @@ class Settings:
     openrouter_api_key: str
     openrouter_base_url: str
     stats_secret: str
+    website_base_url: str
 
 
 def get_settings() -> Settings:
@@ -33,6 +35,7 @@ def get_settings() -> Settings:
             raise RuntimeError(f"Missing Data API settings: {', '.join(missing)}")
 
     return Settings(
+        api_base_url=os.getenv("API_BASE_URL", ""),
         db_backend=db_backend,
         database_url=database_url,
         aws_region=os.getenv("AWS_REGION", os.getenv("AWS_DEFAULT_REGION", "us-east-1")),
@@ -42,4 +45,5 @@ def get_settings() -> Settings:
         openrouter_api_key=os.getenv("OPENROUTER_API_KEY", os.getenv("OPENAI_API_KEY", "")),
         openrouter_base_url=os.getenv("OPENROUTER_BASE_URL", os.getenv("OPENAI_BASE_URL", "https://openrouter.ai/api/v1")),
         stats_secret=os.getenv("STATS_SECRET", ""),
+        website_base_url=os.getenv("WEBSITE_BASE_URL", ""),
     )

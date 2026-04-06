@@ -1,5 +1,5 @@
 project_name     = "plainplan"
-environment      = "dev"
+environment      = "prod"
 aws_region       = "eu-west-1"
 lambda_zip_path  = "../build/plainplan-lambda.zip"
 root_domain_name = "plainplan.click"

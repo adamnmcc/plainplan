@@ -16,6 +16,12 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
+variable "root_domain_name" {
+  description = "Root DNS zone for website and API hostnames (example: plainplan.click). Dev derives dev.plainplan.click and dev.api.plainplan.click; prod derives plainplan.click and api.plainplan.click."
+  type        = string
+  default     = ""
+}
+
 variable "lambda_zip_path" {
   description = "Path to Lambda deployment zip"
   type        = string
@@ -101,19 +107,25 @@ variable "rds_engine_version" {
 # directly from Secrets Manager by Terraform (see config_secrets.tf).
 
 variable "custom_domain_name" {
-  description = "Optional custom API domain (example: dev.api.plainplan.click)"
+  description = "Optional API domain override. When unset, Terraform derives the API domain from root_domain_name and environment."
   type        = string
   default     = ""
 }
 
 variable "website_domain_name" {
-  description = "Optional custom website domain (example: dev.plainplan.click). Served by the same Lambda but gives a clean URL for the website."
+  description = "Optional website domain override. When unset, Terraform derives the website domain from root_domain_name and environment."
   type        = string
   default     = ""
 }
 
 variable "route53_zone_name" {
-  description = "Route53 hosted zone name (example: plainplan.click). When set with custom_domain_name, Terraform creates and validates the ACM certificate and DNS records automatically."
+  description = "Optional Route53 hosted zone name override. Defaults to root_domain_name when omitted."
   type        = string
   default     = ""
+}
+
+variable "additional_cors_origins" {
+  description = "Additional browser origins allowed to call the API."
+  type        = list(string)
+  default     = []
 }

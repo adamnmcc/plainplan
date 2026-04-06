@@ -1,0 +1,20 @@
+{
+  "name": "paperclip",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "private": "true",
+  "overrides": {
+    "@asamuzakjp/css-color": "4.1.2"
+  },
+  "dependencies": {
+    "paperclipai": "^2026.403.0"
+  }
+}

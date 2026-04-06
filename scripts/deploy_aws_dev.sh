@@ -53,6 +53,7 @@ project_name       = "${PROJECT_NAME:-plainplan}"
 environment        = "${ENVIRONMENT:-dev}"
 aws_region         = "${AWS_REGION}"
 lambda_zip_path    = "../build/plainplan-lambda.zip"
+root_domain_name   = "${ROOT_DOMAIN_NAME:-plainplan.click}"
 
 database_url       = "${DATABASE_URL:-}"
 enable_aurora_serverless = ${ENABLE_AURORA_SERVERLESS}
@@ -60,9 +61,6 @@ aurora_database_name     = "${AURORA_DATABASE_NAME:-plainplan}"
 aurora_engine_version    = "${AURORA_ENGINE_VERSION:-16.4}"
 aurora_min_capacity      = ${AURORA_MIN_CAPACITY:-0.5}
 aurora_max_capacity      = ${AURORA_MAX_CAPACITY:-1}
-
-custom_domain_name = "${CUSTOM_DOMAIN_NAME:-api.plainplan.click}"
-acm_certificate_arn = "${ACM_CERTIFICATE_ARN:-}"
 EOF
 
 pushd "$TF_DIR" >/dev/null
@@ -76,7 +74,8 @@ echo "[deploy] terraform apply"
 terraform apply -auto-approve
 
 API_URL="$(terraform output -raw api_invoke_url)"
-CUSTOM_TARGET="$(terraform output -json custom_domain_target || true)"
+CUSTOM_TARGET="$(terraform output -raw custom_domain_target 2>/dev/null || true)"
+WEBSITE_URL="$(terraform output -raw website_url 2>/dev/null || true)"
 
 if [[ "$ENABLE_AURORA_SERVERLESS" == "true" ]]; then
   if ! command -v aws >/dev/null 2>&1; then
@@ -104,17 +103,20 @@ fi
 popd >/dev/null
 
 echo "[deploy] API URL: $API_URL"
+if [[ -n "$WEBSITE_URL" && "$WEBSITE_URL" != "null" ]]; then
+  echo "[deploy] Website URL: $WEBSITE_URL"
+fi
 echo "[deploy] Health check..."
 curl -fsS "$API_URL/health" || {
   echo "[deploy] Health check failed"
   exit 1
 }
 
-if [[ -n "${CUSTOM_DOMAIN_NAME:-}" && -n "${ACM_CERTIFICATE_ARN:-}" ]]; then
+if [[ -n "${ROOT_DOMAIN_NAME:-}" ]]; then
   echo "[deploy] Custom domain target info from Terraform output:"
   echo "$CUSTOM_TARGET"
-  echo "[deploy] Ensure DNS CNAME points ${CUSTOM_DOMAIN_NAME} to target_domain_name above, then verify:"
-  echo "[deploy] curl -fsS https://${CUSTOM_DOMAIN_NAME}/health"
+  echo "[deploy] Verify API custom domain:"
+  echo "[deploy] curl -fsS $CUSTOM_TARGET/health"
 fi
 
 echo "[deploy] Done."
