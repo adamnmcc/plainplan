@@ -11,3 +11,5 @@ projects/
 *.jsonl
 *.pyc
 example.json
+build/
+paperclip/

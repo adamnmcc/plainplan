@@ -1,6 +1,18 @@
 name: Deploy PlainPlan to AWS
 
 on:
+  pull_request:
+    branches:
+      - main
+      - master
+    paths:
+      - "python_service/**"
+      - "public/**"
+      - "test-fixtures/**"
+      - "terraform/**"
+      - "requirements-python.txt"
+      - "scripts/**"
+      - ".github/workflows/deploy-aws.yml"
   push:
     branches:
       - main
@@ -30,7 +42,7 @@ concurrency:
 
 jobs:
   deploy:
-    name: Build and Deploy
+    name: Build and Plan/Deploy
     runs-on: ubuntu-latest
     environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || 'dev' }}
     permissions:
@@ -71,10 +83,12 @@ jobs:
         run: terraform plan -var-file=${DEPLOY_ENV}.tfvars -out=tfplan
 
       - name: Terraform Apply
+        if: github.event_name != 'pull_request'
         working-directory: terraform
         run: terraform apply -auto-approve tfplan
 
       - name: Bootstrap database schema
+        if: github.event_name != 'pull_request'
         working-directory: terraform
         run: |
           CLUSTER_ARN="$(terraform output -raw aurora_cluster_arn 2>/dev/null || true)"
@@ -100,6 +114,7 @@ jobs:
           fi
 
       - name: Post-deploy smoke tests
+        if: github.event_name != 'pull_request'
         working-directory: terraform
         run: |
           set -euo pipefail
